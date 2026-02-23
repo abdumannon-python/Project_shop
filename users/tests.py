@@ -8,6 +8,7 @@ from django.test import TestCase
 # 3)message buni qilish uchun Chat model ham qilish kerak
 # 4 ) ro'yxatdan o'tish ham qilinsin va email uchun model ham
 # 5) balans
+# 6) contact
 # =====View====
 # model larni har birini crud qismi
 # user parolini tiklash qo'shilishi kerak
