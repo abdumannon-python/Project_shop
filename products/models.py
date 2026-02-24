@@ -1,6 +1,4 @@
 from django.db import models
-
-from django.db import models
 from decimal import Decimal
 
 
@@ -11,7 +9,6 @@ class Category(models.Model):
 
     def __str__(self):
         return self.title
-
 
 class Products(models.Model):
     category=models.ForeignKey(Category,on_delete=models.CASCADE,related_name='product')
