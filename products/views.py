@@ -78,3 +78,4 @@ class ProductDetails(View):
 
 
 
+
