@@ -148,16 +148,14 @@ class UpdateUser(View):
                 user.balance = Decimal(balance_cleaned)
             except (InvalidOperation, ValueError):
                 pass
-
-
         user.save()
-        return redirect('home')
+        return redirect('login')
 
 class LogoutView(View):
     def get(self, request, id):
         user = User.objects.get(id=request.id)
         logout(user)
-        return redirect('home')
+        return redirect('login')
 
 class Recovery(View):
     def get(self, request):
@@ -186,7 +184,7 @@ class Recovery(View):
             fail_silently=False
         )
         request.session['recovery_email'] = email
-        return redirect('recovery_code')
+        return redirect('confirm_recovery')
 
 class ConfirmRecovery(View):
     def get(self, request):
@@ -203,10 +201,10 @@ class ConfirmRecovery(View):
             })
         try:
             emailobj = Emailcode.objects.get(users__email=email, code=code)
-            if email.is_valid():
+            if emailobj.is_valid():
                 user = emailobj.users
                 user.is_active = True
-                user.save
+                user.save()
 
                 emailobj.delete()
                 return redirect('update_user', id= user.id)
