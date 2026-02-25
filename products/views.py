@@ -3,7 +3,13 @@ from django.contrib.auth import get_user_model
 from .models import Products,Category,Wishlis,ProductImages
 from django.views import View
 from django.contrib.auth.mixins import LoginRequiredMixin
+from users.models import Comment
+from orders.models import Order,OrderItem
 User=get_user_model()
+
+
+
+def get_last_7_days_stats():
 
 
 class ProductCreate(LoginRequiredMixin,View):
@@ -71,6 +77,24 @@ class ProductDelete(LoginRequiredMixin,View):
 class ProductDetails(View):
     def get(self,request,pk):
         products=get_object_or_404(Products,pk=pk)
+        comment=Comment.objects.filter(prost_id=pk)
+        product_order=OrderItem.objects.filter(product_id=pk)
+        context={
+            'products':products,
+            'comment':comment
+        }
+
+        return render(request,'product_detail.html',context)
+class ProductView(View):
+    def get(self,request):
+        products=Products.objects.filter().order_by('category')
+        return render(request,'home.html',{'products':products})
+
+
+
+
+
+
 
 
 

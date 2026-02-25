@@ -25,7 +25,7 @@ class ProductTest(TestCase):
             'title': 'iPhone',
             'brand': 'Apple',
             'price': '1000',
-            'percent': '10',  # 10% chegirma
+            'percent': '10',
             'stock': '10',
             'desc': 'Yangi telefon'
         }
