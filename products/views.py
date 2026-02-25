@@ -6,10 +6,10 @@ from .models import Products,Category,Wishlis,ProductImages
 from django.views import View
 from django.contrib.auth.mixins import LoginRequiredMixin
 from users.models import Comment
-from orders.models import Order, OrderItem, CartItem
+from orders.models import  OrderItem
 from django.utils import timezone
-from datetime import datetime, timedelta
-from django.db.models import Sum,Count
+from datetime import timedelta
+from django.db.models import Sum
 
 
 User=get_user_model()
