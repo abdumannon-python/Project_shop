@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Emailni tasdiqlash</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body class="bg-slate-50 h-screen flex items-center justify-center px-4">
+
+    <div class="max-w-md w-full bg-white p-10 rounded-3xl shadow-2xl border border-gray-100 text-center">
+        <div class="inline-flex items-center justify-center w-20 h-20 bg-green-100 text-green-600 rounded-full mb-6">
+            <i class="fa-solid fa-envelope-open-text text-3xl"></i>
+        </div>
+
+        <h2 class="text-2xl font-bold text-gray-900 mb-2">Hisobni tasdiqlang</h2>
+        <p class="text-gray-500 mb-8">
+            Ro'yxatdan o'tishni yakunlash uchun emailingizga yuborilgan 6 xonali tasdiqlash kodini kiriting.
+        </p>
+
+        {% if error %}
+        <div class="mb-6 p-4 bg-red-50 border-l-4 border-red-500 rounded-r-lg flex items-center text-red-700 text-sm">
+            <i class="fa-solid fa-triangle-exclamation mr-3"></i>
+            <span class="font-medium">{{ error }}</span>
+        </div>
+        {% endif %}
+
+        <form method="POST" action="">
+            {% csrf_token %}
+            <div class="mb-8">
+                <input type="text" 
+                       name="code" 
+                       required 
+                       maxlength="6" 
+                       placeholder="000000"
+                       autofocus
+                       class="w-full text-center text-3xl font-mono tracking-[0.5em] py-4 border-2 border-gray-100 rounded-2xl focus:border-green-500 focus:ring-4 focus:ring-green-50 focus:outline-none transition duration-300">
+            </div>
+
+            <button type="submit" 
+                    class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-4 rounded-2xl shadow-lg shadow-green-100 transform active:scale-[0.98] transition duration-200">
+                Tasdiqlash va Kirish
+            </button>
+        </form>
+
+        <div class="mt-8 pt-6 border-t border-gray-100">
+            <p class="text-sm text-gray-500">
+                Kod kelmadimi? 
+                <a href="#" class="text-green-600 font-bold hover:underline">Qayta yuborish</a>
+            </p>
+            <a href="{% url 'register' %}" class="inline-block mt-4 text-xs text-gray-400 hover:text-gray-600 uppercase tracking-widest font-semibold">
+                <i class="fa-solid fa-arrow-left mr-1"></i> Ro'yxatdan o'tishga qaytish
+            </a>
+        </div>
+    </div>
+
+</body>
+</html>

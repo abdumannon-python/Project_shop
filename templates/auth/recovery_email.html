@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Parolni tiklash</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 h-screen flex items-center justify-center">
+
+    <div class="bg-white p-8 rounded-xl shadow-lg w-full max-w-md">
+        <div class="text-center mb-8">
+            <h2 class="text-3xl font-bold text-gray-800">Parolni tiklash</h2>
+            <p class="text-gray-500 mt-2 text-sm">Tizimga kirish uchun foydalanadigan email manzilingizni kiriting</p>
+        </div>
+        
+        {% if error %}
+        <div class="bg-red-50 border-l-4 border-red-500 text-red-700 p-4 mb-6 rounded shadow-sm" role="alert">
+            <p class="text-sm font-medium">{{ error }}</p>
+        </div>
+        {% endif %}
+
+        <form method="POST" action="">
+            {% csrf_token %}
+            <div class="mb-6">
+                <label for="email" class="block text-gray-700 text-sm font-semibold mb-2">
+                    Email manzilingiz
+                </label>
+                <input type="email" 
+                       name="email" 
+                       id="email" 
+                       required 
+                       placeholder="example@mail.com"
+                       class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200">
+            </div>
+
+            <button type="submit" 
+                    class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-lg shadow-md hover:shadow-lg transform active:scale-[0.98] transition duration-200">
+                Kodni yuborish
+            </button>
+        </form>
+
+        <div class="mt-8 text-center border-t pt-6">
+            <p class="text-gray-600 text-sm">
+                Esingizga tushdimi? 
+                <a href="{% url 'login' %}" class="text-blue-600 font-semibold hover:underline ml-1">
+                    Kirishga qaytish
+                </a>
+            </p>
+        </div>
+    </div>
+
+</body>
+</html>
