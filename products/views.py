@@ -31,5 +31,3 @@ class ProductCreate(LoginRequiredMixin,View):
         for imgage in images:
             ProductImages.objects.create(product=product,imgage=imgage)
         return redirect('dashboard')
-
-
