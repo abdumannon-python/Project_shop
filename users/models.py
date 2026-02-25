@@ -8,7 +8,7 @@ class User(AbstractUser):
     phone=models.CharField(max_length=15,null=True,blank=True)
     address=models.TextField(blank=True,null=True)
     email = models.EmailField(unique=True)
-
+    profile_image = models.ImageField(upload_to='profile_image/', null=True, blank=True)
     def __str__(self):
         return self.username
 
@@ -30,4 +30,7 @@ class Emailcode(models.Model):
     def __str__(self):
         return f" {self.users.username} uchun kod {self.code}"
 
-
+class Comment(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='comment')
+    post = models.ForeignKey('products.Products', on_delete=models.CASCADE, related_name='comment')
+    text = models.TextField()
