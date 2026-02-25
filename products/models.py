@@ -1,7 +1,7 @@
 from django.db import models
 from decimal import Decimal
 
-
+from users.models import User
 
 class Category(models.Model):
     title=models.CharField(max_length=20)
@@ -11,6 +11,7 @@ class Category(models.Model):
         return self.title
 
 class Products(models.Model):
+    auth=models.ForeignKey(User,on_delete=models.CASCADE,related_name='auth')
     category=models.ForeignKey(Category,on_delete=models.CASCADE,related_name='product')
     title=models.CharField(max_length=50)
     brand=models.CharField(max_length=50)
@@ -40,5 +41,8 @@ class ProductImages(models.Model):
     def __str__(self):
         return self.product.title
 
+class Wishlis(models.Model):
+    user=models.ForeignKey(User,on_delete=models.CASCADE,related_name='wishlis')
+    product=models.ForeignKey(Products,on_delete=models.CASCADE,related_name='product')
 
 
