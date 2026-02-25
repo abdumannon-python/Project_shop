@@ -17,14 +17,14 @@ class Products(models.Model):
     brand=models.CharField(max_length=50)
     price=models.DecimalField(max_digits=10,decimal_places=2)
     discount_price=models.DecimalField(max_digits=10,decimal_places=2,null=True,blank=True)
-    present=models.IntegerField(null=True,blank=True,default=0)
+    percent=models.IntegerField(null=True,blank=True,default=0)
     main_image=models.ImageField(upload_to='product_image',null=True,blank=True)
     stock=models.PositiveIntegerField()
     desc=models.TextField()
 
     def save(self,*args,**kwargs):
         price = Decimal(self.price) if self.price not in ['', None] else Decimal('0')
-        percent = Decimal(self.present) if self.present not in ['', None] else Decimal('0')
+        percent = Decimal(self.percent) if self.percent not in ['', None] else Decimal('0')
         if percent:
             reduction = (price * percent) / 100
             self.discount_price = price - reduction
