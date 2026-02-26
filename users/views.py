@@ -13,7 +13,6 @@ from decimal import Decimal, InvalidOperation
 
 def generate():
     return ''.join([str(random.randint(0,9)) for i in range(6)])
-
 class Register(View):
     def get(self, request):
         return render(request, 'auth/register.html')
@@ -24,7 +23,6 @@ class Register(View):
         profile_image = request.FILES.get('profile_image')
         password = request.POST.get('password')
         confirm_password = request.POST.get('confirm_password')
-
 
         if password != confirm_password:
             return render(request, 'auth/register.html', {""
@@ -42,9 +40,9 @@ class Register(View):
             return render(request, 'auth/register.html', {
                 "error": "Bu email allaqachon mavjud"
             })
-        if profile_image.endwidth('.webp'):
+        if profile_image and profile_image.name.lower().endswith('.webp'):
             return render(request, 'auth/register.html', {
-                "error": "Bu Formatdagi rasmlar mos kelmaydi"
+                "error": ".webp formatdagi rasmlar mos kelmaydi. Iltimos, JPG yoki PNG yuklang."
             })
 
         user = User.objects.create_user(
@@ -52,7 +50,7 @@ class Register(View):
             email=email,
             profile_image=profile_image,
             password=password,
-            is_activate=False
+            is_active=False
         )
 
         code = generate()
@@ -129,7 +127,7 @@ class LoginView(View):
 class Profile(View):
     def get(self, request, id):
         user = get_object_or_404(User, id=id)
-        products = Products.objects.filter(user=user)
+        products = Products.objects.filter(auth = user)
         return render(request, 'auth/profile.html', {
             "user": user,
             "products": products
@@ -142,10 +140,13 @@ class UpdateUser(View):
 
     def post(self, request, id):
         user = get_object_or_404(User, id=id)
-
-        user.username = request.POST.get('username')
+        if request.FILES.get('profile_image'):
+            user.profile_image = request.FILES.get('profile_image')
         user.phone = request.POST.get('phone')
         balance_raw = request.POST.get('balance')
+        new_password = request.POST.get('new_password')
+        if new_password:
+            user.set_password(new_password),
         if balance_raw:
             try:
                 balance_cleaned = balance_raw.replace(',', '.')
@@ -153,7 +154,7 @@ class UpdateUser(View):
             except (InvalidOperation, ValueError):
                 pass
         user.save()
-        return redirect('login')
+        return redirect('profile', id = request.user.id)
 
 class LogoutView(View):
     def get(self, request, id):
@@ -218,3 +219,7 @@ class ConfirmRecovery(View):
             return render(request, 'auth/rec_code.html', {
                 "error": "No`to`g`ri Kod Kiritildi"
             })
+
+class AddProduct(View):
+    def get(self, request):
+        return render

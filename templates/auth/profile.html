@@ -21,7 +21,7 @@
                         </div>
                     </div>
                     {% if request.user.id == user.id %}
-                    <a href="{% url 'update_user' user.id %}" class="bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 px-6 py-2 rounded-xl font-medium transition duration-200 shadow-sm">
+                    <a href="{% url 'update_user' request.user.id %}" class="bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 px-6 py-2 rounded-xl font-medium transition duration-200 shadow-sm">
                         <i class="fa-solid fa-pen-to-square mr-2"></i>Tahrirlash
                     </a>
                     {% endif %}

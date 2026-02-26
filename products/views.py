@@ -9,6 +9,7 @@ from orders.models import  OrderItem
 from django.utils import timezone
 from datetime import timedelta
 from django.db.models import Sum
+from users.models import *
 
 
 User=get_user_model()
@@ -119,9 +120,11 @@ class ProductDetails(View):
 class ProductView(View):
     def get(self,request):
         products=Products.objects.filter().order_by('category')
-        return render(request,'home.html',{'products':products})
-
-
+        user = User.objects.all()
+        return render(request,'index.html',{
+            'products':products,
+            'user': user
+            })
 
 class WishesView(View):
     def get(self, request, id):
