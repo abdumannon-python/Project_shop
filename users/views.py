@@ -11,6 +11,9 @@ from .models import *
 from products.models import *
 from decimal import Decimal, InvalidOperation
 
+def generate():
+    return ''.join([str(random.randint(0,9)) for i in range(6)])
+
 class Register(View):
     def get(self, request):
         return render(request, 'auth/register.html')
@@ -68,66 +71,7 @@ class Register(View):
         )
         request.session['temp_user_id'] = user.id
         return redirect('verify')
-def generate():
-    return ''.join([str(random.randint(0,9)) for i in range(6)])
 
-class Register(View):
-    def get(self, request):
-        return render(request, 'auth/register.html')
-
-    def post(self, request):
-        username = request.POST.get('username')
-        email = request.POST.get('email')
-        profile_image = request.FILES.get('profile_image')
-        password = request.POST.get('password')
-        confirm_password = request.POST.get('confirm_password')
-
-
-        if password != confirm_password:
-            return render(request, 'auth/register.html', {""
-                "error": "Parollar mos Emas"
-            })
-        if len(password) < 5 or password is None:
-            return render(request, 'auth/register.html', {
-                "error": "Parol 5 ta belgidan kam yoki Parol Kiritilmagan"
-            })
-        if User.objects.filter(username=username).exists():
-            return render(request, 'auth/register.html', {
-                "error": "Bu Username allaqachon mavjud"
-            })
-        if User.objects.filter(email=email).exists():
-            return render(request, 'auth/register.html', {
-                "error": "Bu email allaqachon mavjud"
-            })
-        if profile_image.endwidth('.webp'):
-            return render(request, 'auth/register.html', {
-                "error": "Bu Formatdagi rasmlar mos kelmaydi"
-            })
-
-        user = User.objects.create_user(
-            username=username,
-            email=email,
-            profile_image = profile_image,
-            password=password,
-            is_activate = False
-        )
-
-        code = generate()
-
-        Emailcode.objects.create(
-            users=user,
-            code=code
-        )
-
-        send_mail(
-            'Tasdiqlash kodi',
-            f'Sizning tasdiqlash kodingiz: {code}',
-            settings.EMAIL_HOST_USER,
-            [email],
-            fail_silently=False
-        )
-        request.session['temp_user_id'] = user.id
-        return redirect('verify')
 class VerifyPage(View):
     def get(self, request):
         return render(request, 'auth/email_verify.html')
