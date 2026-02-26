@@ -1,4 +1,3 @@
-from django.core.handlers.base import reset_urlconf
 from django.shortcuts import render,redirect,get_object_or_404
 from django.contrib.auth import get_user_model
 from .models import Products,Category,Wishlis,ProductImages
