@@ -1,13 +1,13 @@
 from django.shortcuts import render,redirect,get_object_or_404
 from django.contrib.auth import get_user_model
-from .models import Products,Category,Wishlis,ProductImages
+from .models import Products,Category,Wishlist,ProductImages
 from django.views import View
 from django.contrib.auth.mixins import LoginRequiredMixin
-from users.models import Comment
 from orders.models import  OrderItem
 from django.utils import timezone
 from datetime import timedelta
 from django.db.models import Sum
+from users.models import *
 
 
 User=get_user_model()
@@ -104,12 +104,12 @@ class ProductDetails(View):
 
     def post(self, request, pk):
         post = get_object_or_404(Products, pk=pk)
-        wishlis = get_object_or_404(Wishlis, user_id=request.user.id)
+        wishlis = get_object_or_404(Wishlist, user_id=request.user.id)
 
         if wishlis:
             wishlis.delete()
         else:
-            Wishlis.objects.create(user=request.user, product=post)
+            Wishlist.objects.create(user=request.user, product=post)
 
         return redirect('product_detail')
 
@@ -118,14 +118,16 @@ class ProductDetails(View):
 class ProductView(View):
     def get(self,request):
         products=Products.objects.filter().order_by('category')
-        return render(request,'home.html',{'products':products})
-
-
+        user = User.objects.all()
+        return render(request,'index.html',{
+            'products':products,
+            'user': user
+            })
 
 class WishesView(View):
     def get(self, request, id):
         user = get_object_or_404(User, id = id)
-        wish = Wishlis.objects.filter(user=user)
+        wish = Wishlist.objects.filter(user=user)
         return render(request, 'wishes.html',{
             "user": user,
             "wish": wish
@@ -137,22 +139,11 @@ class Addwish(LoginRequiredMixin ,View):
     login_url = 'login'
     def post(self, request, id):
         post = get_object_or_404(Products, id = id)
-        wishlis=get_object_or_404(Wishlis,user_id = request.user.id)
+        wishlis=get_object_or_404(Wishlist,user_id = request.user.id)
 
         if wishlis:
             wishlis.delete()
         else:
-            Wishlis.objects.create(user=request.user,product=post)
+            Wishlist.objects.create(user=request.user,product=post)
 
         return redirect('home')
-
-
-
-
-
-
-
-
-
-
-

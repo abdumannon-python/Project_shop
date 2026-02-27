@@ -3,57 +3,185 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Emailni tasdiqlash</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <title>Ro'yxatdan o'tish | My Store</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .register-card {
+            background: white;
+            border-radius: 24px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+            overflow: hidden;
+            max-width: 500px;
+            width: 100%;
+            border: none;
+        }
+
+        .card-header-custom {
+            background: #4a90e2;
+            padding: 30px;
+            text-align: center;
+            color: white;
+        }
+
+        .form-control {
+            border-radius: 12px;
+            padding: 12px 15px;
+            border: 1px solid #e0e0e0;
+            background-color: #fcfcfc;
+        }
+
+        .form-control:focus {
+            box-shadow: 0 0 0 4px rgba(74, 144, 226, 0.1);
+            border-color: #4a90e2;
+        }
+
+        .profile-upload {
+            position: relative;
+            width: 100px;
+            height: 100px;
+            margin: -50px auto 20px;
+        }
+
+        .profile-preview {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 4px solid white;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            background: #eee;
+        }
+
+        .upload-btn {
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            background: #4a90e2;
+            color: white;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            border: 2px solid white;
+        }
+
+        .btn-register {
+            background: #4a90e2;
+            border: none;
+            border-radius: 12px;
+            padding: 14px;
+            font-weight: 600;
+            transition: 0.3s;
+        }
+
+        .btn-register:hover {
+            background: #357abd;
+            transform: translateY(-2px);
+        }
+
+        .error-alert {
+            border-radius: 12px;
+            font-size: 0.9rem;
+            animation: shake 0.5s ease;
+        }
+
+        @keyframes shake {
+            0%, 100% {transform: translateX(0);}
+            25% {transform: translateX(-5px);}
+            75% {transform: translateX(5px);}
+        }
+    </style>
 </head>
-<body class="bg-slate-50 h-screen flex items-center justify-center px-4">
+<body>
 
-    <div class="max-w-md w-full bg-white p-10 rounded-3xl shadow-2xl border border-gray-100 text-center">
-        <div class="inline-flex items-center justify-center w-20 h-20 bg-green-100 text-green-600 rounded-full mb-6">
-            <i class="fa-solid fa-envelope-open-text text-3xl"></i>
-        </div>
+<div class="register-card">
+    <div class="card-header-custom">
+        <h3 class="fw-bold mb-1">Hisob yaratish</h3>
+        <p class="mb-0 opacity-75">Bizga qo'shiling va xaridni boshlang</p>
+    </div>
 
-        <h2 class="text-2xl font-bold text-gray-900 mb-2">Hisobni tasdiqlang</h2>
-        <p class="text-gray-500 mb-8">
-            Ro'yxatdan o'tishni yakunlash uchun emailingizga yuborilgan 6 xonali tasdiqlash kodini kiriting.
-        </p>
-
-        {% if error %}
-        <div class="mb-6 p-4 bg-red-50 border-l-4 border-red-500 rounded-r-lg flex items-center text-red-700 text-sm">
-            <i class="fa-solid fa-triangle-exclamation mr-3"></i>
-            <span class="font-medium">{{ error }}</span>
-        </div>
-        {% endif %}
-
-        <form method="POST" action="">
+    <div class="card-body p-4 p-md-5">
+        <form method="POST" enctype="multipart/form-data">
             {% csrf_token %}
-            <div class="mb-8">
-                <input type="text" 
-                       name="code" 
-                       required 
-                       maxlength="6" 
-                       placeholder="000000"
-                       autofocus
-                       class="w-full text-center text-3xl font-mono tracking-[0.5em] py-4 border-2 border-gray-100 rounded-2xl focus:border-green-500 focus:ring-4 focus:ring-green-50 focus:outline-none transition duration-300">
+            
+            <div class="profile-upload">
+                <img src="https://cdn-icons-png.flaticon.com/512/149/149071.png" id="preview" class="profile-preview">
+                <label for="profile_image" class="upload-btn">
+                    <i class="fas fa-camera"></i>
+                </label>
+                <input type="file" name="profile_image" id="profile_image" hidden accept="image/*" required>
             </div>
 
-            <button type="submit" 
-                    class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-4 rounded-2xl shadow-lg shadow-green-100 transform active:scale-[0.98] transition duration-200">
-                Tasdiqlash va Kirish
-            </button>
-        </form>
+            {% if error %}
+            <div class="alert alert-danger error-alert d-flex align-items-center mb-4" role="alert">
+                <i class="fas fa-exclamation-circle me-2"></i>
+                <div>{{ error }}</div>
+            </div>
+            {% endif %}
 
-        <div class="mt-8 pt-6 border-t border-gray-100">
-            <p class="text-sm text-gray-500">
-                Kod kelmadimi? 
-                <a href="#" class="text-green-600 font-bold hover:underline">Qayta yuborish</a>
-            </p>
-            <a href="{% url 'register' %}" class="inline-block mt-4 text-xs text-gray-400 hover:text-gray-600 uppercase tracking-widest font-semibold">
-                <i class="fa-solid fa-arrow-left mr-1"></i> Ro'yxatdan o'tishga qaytish
-            </a>
-        </div>
+            <div class="mb-3">
+                <label class="form-label small fw-bold">Username</label>
+                <div class="input-group">
+                    <span class="input-group-text bg-white border-end-0 rounded-start-12"><i class="far fa-user text-muted"></i></span>
+                    <input type="text" name="username" class="form-control border-start-0 ps-0" placeholder="user123" required>
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label small fw-bold">Email manzilingiz</label>
+                <div class="input-group">
+                    <span class="input-group-text bg-white border-end-0"><i class="far fa-envelope text-muted"></i></span>
+                    <input type="email" name="email" class="form-control border-start-0 ps-0" placeholder="example@gmail.com" required>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label class="form-label small fw-bold">Parol</label>
+                    <input type="password" name="password" class="form-control" placeholder="••••••••" required>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label small fw-bold">Tasdiqlash</label>
+                    <input type="password" name="confirm_password" class="form-control" placeholder="••••••••" required>
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-register w-100 mt-3 text-white">
+                Ro'yxatdan o'tish <i class="fas fa-arrow-right ms-2"></i>
+            </button>
+
+            <div class="text-center mt-4">
+                <p class="small text-muted">Profilingiz bormi? <a href="{% url 'login' %}" class="text-primary fw-bold text-decoration-none">Kirish</a></p>
+            </div>
+        </form>
     </div>
+</div>
+
+<script>
+    // Rasmni tanlaganda darhol preview qilish uchun
+    document.getElementById('profile_image').onchange = function (evt) {
+        const [file] = this.files
+        if (file) {
+            document.getElementById('preview').src = URL.createObjectURL(file)
+        }
+    }
+</script>
 
 </body>
 </html>
