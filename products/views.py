@@ -80,7 +80,7 @@ class ProductDelete(LoginRequiredMixin,View):
     def get(self,request,pk):
         product=get_object_or_404(Products,pk=pk,auth=request.user)
         product.delete()
-        return redirect('dashboard')
+        return redirect('home')
 
 
 class ProductDetails(View):
