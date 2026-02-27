@@ -1,6 +1,6 @@
 from django.shortcuts import render,redirect,get_object_or_404
 from django.contrib.auth import get_user_model
-from .models import Products,Category,Wishlist,ProductImages
+from .models import *
 from django.views import View
 from django.contrib.auth.mixins import LoginRequiredMixin
 from orders.models import  OrderItem
@@ -104,10 +104,10 @@ class ProductDetails(View):
 
     def post(self, request, pk):
         post = get_object_or_404(Products, pk=pk)
-        wishlis = get_object_or_404(Wishlist, user_id=request.user.id)
+        wishlist = get_object_or_404(Wishlist, user_id=request.user.id)
 
-        if wishlis:
-            wishlis.delete()
+        if wishlist:
+            wishlist.delete()
         else:
             Wishlist.objects.create(user=request.user, product=post)
 
