@@ -1,15 +1,13 @@
-# orders/urls.py
 
 from django.urls import path
-from .views import (
-    CheckoutView, OrderSuccessView, OrderListView,
-    OrderDetailView, OrderCancelView
-)
-
+from .views import *
 urlpatterns = [
     path('checkout/', CheckoutView.as_view(), name='checkout'),
-    path('success/', OrderSuccessView.as_view(), name='order_success'),
     path('my-orders/', OrderListView.as_view(), name='order_list'),
     path('order/<int:pk>/', OrderDetailView.as_view(), name='order_detail'),
     path('order/<int:pk>/cancel/', OrderCancelView.as_view(), name='order_cancel'),
+    path('addcart/<int:id>',AddCartView.as_view(),name='addcart'),
+    path('cartview/', CartView.as_view(), name='cart_view'),
+    path('cartremove/<int:id>', RemoveFromCartView.as_view(), name='cartremove'),
+    path('cartdelete/<int:product_id>',DeleteCart.as_view(),name='cartdelete'),
 ]

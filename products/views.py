@@ -5,8 +5,6 @@ from .models import *
 from django.views import View
 from django.contrib.auth.mixins import LoginRequiredMixin
 from orders.models import  OrderItem
-from django.utils import timezone
-from datetime import timedelta
 from django.db.models import Sum
 from users.models import *
 
@@ -18,6 +16,7 @@ class ProductCreate(LoginRequiredMixin,View):
     def get(self,request):
         category=Category.objects.all()
         return render(request,'product_form.html',{'category':category})
+                                                                        # category  da database dan kategoriyalar kealdi
     def post(self,request):
         category_id=request.POST.get('category')
         category=get_object_or_404(Category,id=category_id)
@@ -72,7 +71,7 @@ class ProductUpdate(LoginRequiredMixin,View):
         if new_image:
             ProductImages.objects.filter(product=product).delete()
             for image in new_image:
-                ProductImages.objects.create(product=product, image=image)
+                ProductImages.objects.create(product_id=pk, image=image)
 
         return redirect('dashboard')
 
@@ -119,10 +118,8 @@ class ProductDetails(View):
 class ProductView(View):
     def get(self,request):
         products=Products.objects.filter().order_by('category')
-        user = User.objects.all()
         return render(request,'index.html',{
             'products':products,
-            'user': user
             })
 
 class WishesView(View):

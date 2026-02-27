@@ -5,6 +5,7 @@ from django.contrib import messages
 from django.db import transaction
 from .models import Cart, CartItem
 from orders.models import Order, OrderItem
+from products.models import Products
 
 
 
@@ -39,7 +40,7 @@ class CheckoutView(LoginRequiredMixin, View):
             order = Order.objects.create(
                 user=request.user,
                 username=request.user.username,
-                phone=getattr(request.user, 'phone', ''),  # phone maydoni yo'q bo'lsa xato bermaydi
+                phone=getattr(request.user, 'phone', ''),
                 address=getattr(request.user, 'address', ''),
                 total_price=total_price,
                 status='pending'
@@ -48,7 +49,7 @@ class CheckoutView(LoginRequiredMixin, View):
             for item in cart.items.all():
                 if item.product.stock < item.quantity:
                     messages.error(request, f"{item.product.title} mahsuloti omborda yetarli emas.")
-                    raise Exception("Ombor yetishmovchiligi")  # Tranzaktsiyani bekor qilish uchun
+                    raise Exception("Ombor yetishmovchiligi")
 
                 OrderItem.objects.create(
                     order=order,
@@ -72,13 +73,6 @@ class CheckoutView(LoginRequiredMixin, View):
         return redirect('order_success')
 
 
-
-
-class OrderSuccessView(LoginRequiredMixin, View):
-    def get(self, request):
-        return render(request, 'order_success.html')
-
-
 class OrderListView(LoginRequiredMixin, View):
     def get(self, request):
         orders = Order.objects.filter(user=request.user).order_by('-created_at')
@@ -94,7 +88,6 @@ class OrderDetailView(LoginRequiredMixin, View):
             'order': order,
             'items': items
         })
-
 
 class OrderCancelView(LoginRequiredMixin, View):
     def post(self, request, pk):
@@ -113,3 +106,44 @@ class OrderCancelView(LoginRequiredMixin, View):
             messages.error(request, "Bu buyurtmani bekor qilib bolmaydi.")
 
         return redirect('order_detail', pk=pk)
+
+
+class AddCartView(LoginRequiredMixin,View):
+    def post(self,request,id):
+        product=get_object_or_404(Products,id=id)
+        cart,created=Cart.objects.get_or_create(user=request.user,is_ordered=False)
+
+        cart_item,item_created=CartItem.objects.get_or_create(cart=cart,product=product)
+
+        if not item_created:
+            cart_item.quantity+=1
+            cart_item.save()
+
+        return redirect('cart_view')
+
+class CartView(LoginRequiredMixin,View):
+    def get(self,request):
+        cart=Cart.objects.filter(user=request.user,is_ordered=False).first()
+        return render(request,'cart.html',{'cart':cart})
+
+
+class RemoveFromCartView(LoginRequiredMixin,View):
+    def post(self,request,id):
+        product=get_object_or_404(Products,id=id)
+        cart=Cart.objects.get(user=request.user,is_ordered=False)
+        cart_item=CartItem.objects.filter(cart=cart,product=product).first()
+        if not cart_item:
+            return redirect('cart_view')
+        if cart_item.quantity>1:
+            cart_item.quantity-=1
+            cart_item.save()
+        else:
+            cart_item.delete()
+
+        return redirect('cart_view')
+class DeleteCart(LoginRequiredMixin,View):
+    def post(self,request,product_id):
+        cart=Cart.objects.get(user=request.user,is_ordered=False)
+        CartItem.objects.filter(cart=cart,product_id=product_id).delete()
+        return redirect('cart_view')
+
