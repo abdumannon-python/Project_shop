@@ -3,7 +3,7 @@ from django.views import View
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib import messages
 from django.db import transaction
-from users.models import Cart, CartItem
+from .models import Cart, CartItem
 from orders.models import Order, OrderItem
 
 

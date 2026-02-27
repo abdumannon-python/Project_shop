@@ -1,10 +1,8 @@
-from django.core.handlers.base import reset_urlconf
 from django.shortcuts import render,redirect,get_object_or_404
 from django.contrib.auth import get_user_model
 from .models import *
 from django.views import View
 from django.contrib.auth.mixins import LoginRequiredMixin
-from users.models import Comment
 from orders.models import  OrderItem
 from django.utils import timezone
 from datetime import timedelta
@@ -36,9 +34,9 @@ class ProductCreate(LoginRequiredMixin,View):
         )
         product.save()
         images=request.FILES.getlist('images')
-        for imgage in images:
-            ProductImages.objects.create(product=product,imgage=imgage)
-        return redirect('dashboard')
+        for image in images:
+            ProductImages.objects.create(product=product, image=image)
+        return redirect('home')
 
 
 
@@ -50,7 +48,7 @@ class ProductUpdate(LoginRequiredMixin,View):
             'product':product,
             'category':category
         }
-        return render(request,'product_form.html',context)
+        return render(request,'product_update.html',context)
 
     def post(self,request,pk):
         product = get_object_or_404(Products, pk=pk, auth=request.user)
@@ -82,7 +80,7 @@ class ProductDelete(LoginRequiredMixin,View):
     def get(self,request,pk):
         product=get_object_or_404(Products,pk=pk,auth=request.user)
         product.delete()
-        return redirect('dashboard')
+        return redirect('home')
 
 
 class ProductDetails(View):

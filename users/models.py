@@ -8,7 +8,7 @@ class User(AbstractUser):
     address=models.TextField(blank=True,null=True)
     email = models.EmailField(unique=True)
     profile_image = models.ImageField(upload_to='profile_image/', null=True, blank=True)
-    balance = models.DecimalField(decimal_places=3, max_digits=10, null=True, blank=True)
+    balance = models.DecimalField(decimal_places=2, max_digits=10, null=True, blank=True,default=0.000)
     def __str__(self):
         return self.username
 
