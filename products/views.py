@@ -9,9 +9,7 @@ from datetime import timedelta
 from django.db.models import Sum
 from users.models import *
 
-
 User=get_user_model()
-
 
 class ProductCreate(LoginRequiredMixin,View):
     def get(self,request):
@@ -33,13 +31,6 @@ class ProductCreate(LoginRequiredMixin,View):
             desc=request.POST.get('desc')
         )
         product.save()
-        images=request.FILES.getlist('images')
-        for image in images:
-            ProductImages.objects.create(product=product, image=image)
-        return redirect('home')
-
-
-
 class ProductUpdate(LoginRequiredMixin,View):
     def get(self,request,pk):
         product=get_object_or_404(Products,pk=pk,auth=request.user)
@@ -112,9 +103,6 @@ class ProductDetails(View):
             Wishlist.objects.create(user=request.user, product=post)
 
         return redirect('product_detail')
-
-
-
 class ProductView(View):
     def get(self,request):
         products=Products.objects.filter().order_by('category')
