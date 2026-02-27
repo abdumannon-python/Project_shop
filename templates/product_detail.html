@@ -109,6 +109,22 @@
             {% else %}
             <a href="{% url 'login' %}" class="btn btn-primary w-100 py-3 fw-700">Xarid qilish uchun kiring</a>
             {% endif %}
+            
+            {% if user.is_authenticated %}
+                {% if products.auth != user %}
+                    <a href="{% url 'chat_create' products.auth.id %}" class="btn btn-outline-primary w-100 mt-3 shadow-sm" style="border-radius: 12px;">
+                        <i class="bi bi-chat-dots me-2"></i>Sotuvchi bilan bog'lanish
+                    </a>
+                {% else %}
+                    <div class="alert alert-light mt-3 py-2 text-center" style="border-radius: 12px; font-size: 0.9rem;">
+                        <i class="bi bi-info-circle me-1"></i>Bu sizning mahsulotingiz
+                    </div>
+                {% endif %}
+            {% else %}
+                <a href="{% url 'login' %}" class="btn btn-outline-secondary w-100 mt-3" style="border-radius: 12px;">
+                    <i class="bi bi-lock me-2"></i>Suhbat uchun tizimga kiring
+                </a>
+            {% endif %}
 
             <!-- Description -->
             <div class="mt-4">

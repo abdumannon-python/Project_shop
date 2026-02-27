@@ -9,6 +9,5 @@ urlpatterns = [
     path('updateuser/<int:id>/', UpdateUser.as_view(), name='update_user'),
     path('profile/<int:id>/', Profile.as_view(), name='profile'),
     path('recovery/', Recovery.as_view(), name='recovery'),
-    path('confirmrecovery/', ConfirmRecovery.as_view(), name='confirm_recovery')
-    
+    path('confirmrecovery/', ConfirmRecovery.as_view(), name='confirm_recovery'),
 ]

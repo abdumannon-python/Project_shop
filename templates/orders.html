@@ -1,0 +1,91 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="fw-800"><i class="bi bi-box-seam me-2 text-primary"></i>Kelib tushgan buyurtmalar</h2>
+        <span class="badge bg-primary rounded-pill px-3 py-2">{{ order.count }} ta mahsulot</span>
+    </div>
+
+    <div class="card border-0 shadow-sm" style="border-radius: 20px; overflow: hidden;">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="bg-light">
+                    <tr>
+                        <th class="ps-4 py-3 text-muted">Mahsulot</th>
+                        <th class="py-3 text-muted">Xaridor</th>
+                        <th class="py-3 text-muted">Soni</th>
+                        <th class="py-3 text-muted">Umumiy narx</th>
+                        <th class="py-3 text-muted">Holati</th>
+                        <th class="pe-4 py-3 text-end">Amal</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in order %}
+                    <tr>
+                        <td class="ps-4">
+                            <div class="d-flex align-items-center gap-3">
+                                {% if item.product_image %}
+                                <img src="{{ item.product_image.url }}" class="rounded-3" style="width: 50px; height: 50px; object-fit: cover;">
+                                {% endif %}
+                                <div>
+                                    <h6 class="mb-0 fw-700">{{ item.product_title }}</h6>
+                                    <small class="text-muted">ID: #{{ item.order.id }}</small>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="fw-600">{{ item.order.username }}</div>
+                            <small class="text-muted">{{ item.order.phone }}</small>
+                        </td>
+                        <td><span class="badge bg-light text-dark border">{{ item.quantity }} ta</span></td>
+                        <td><div class="fw-800 text-success">{{ item.price }} so'm</div></td>
+                        <td>
+                            {% if item.order.status == 'pending' %}
+                                <span class="badge bg-warning-subtle text-warning px-3">Kutilmoqda</span>
+                            {% elif item.order.status == 'processing' %}
+                                <span class="badge bg-info-subtle text-info px-3">Jarayonda</span>
+                            {% elif item.order.status == 'shipped' %}
+                                <span class="badge bg-primary-subtle text-primary px-3">Yo‘lda</span>
+                            {% elif item.order.status == 'delivered' %}
+                                <span class="badge bg-success-subtle text-success px-3">Yetkazildi</span>
+                            {% elif item.order.status == 'cancelled' %}
+                                <span class="badge bg-danger-subtle text-danger px-3">Bekor qilindi</span>
+                            {% endif %}
+                        </td>
+                        <td class="pe-4 text-end">
+                            <form method="post" class="d-flex gap-2 justify-content-end align-items-center">
+                                {% csrf_token %}
+                                <input type="hidden" name="order_item_id" value="{{ item.id }}">
+                                
+                                <select name="status" class="form-select form-select-sm border-0 bg-light" 
+                                        style="width: 140px; border-radius: 8px;"
+                                        {% if item.order.status == 'delivered' or item.order.status == 'cancelled' %}disabled{% endif %}>
+                                    <option value="pending" {% if item.order.status == 'pending' %}selected{% endif %}>Kutilmoqda</option>
+                                    <option value="processing" {% if item.order.status == 'processing' %}selected{% endif %}>Jarayonda</option>
+                                    <option value="shipped" {% if item.order.status == 'shipped' %}selected{% endif %}>Yo‘lda</option>
+                                    <option value="delivered" {% if item.order.status == 'delivered' %}selected{% endif %}>Yetkazildi</option>
+                                    <option value="cancelled" {% if item.order.status == 'cancelled' %}selected{% endif %}>Bekor qilish</option>
+                                </select>
+                                
+                                <button type="submit" class="btn btn-dark btn-sm rounded-circle p-2"
+                                        {% if item.order.status == 'delivered' or item.order.status == 'cancelled' %}disabled{% endif %}>
+                                    <i class="bi bi-check-lg"></i>
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="text-center py-5 text-muted">
+                            <i class="bi bi-inbox fs-1 d-block mb-3 opacity-25"></i>
+                            Hozircha hech qanday buyurtma yo'q.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

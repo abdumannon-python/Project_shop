@@ -11,4 +11,5 @@ urlpatterns = [
     path('cartdelete/<int:product_id>',DeleteCart.as_view(),name='cartdelete'),
     path('comment/update/<int:comment_id>/',CommentUpdate.as_view(),name='comment_update'),
     path('comment/delete/<int:comment_id>/',CommentDelete.as_view(),name='comment_delete'),
+    path('order/detail/',OrderStatusView.as_view(),name='order_detail'),
 ]

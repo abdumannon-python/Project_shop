@@ -7,47 +7,66 @@
     <div class="row g-4">
         <div class="col-lg-8 mx-auto">
             {% if chats %}
-            {% for chat in chats %}
-            {% with recipient=chat.get_recipient(request.user) last=chat.last_message %}
-            <a href="{% url 'chat_detail' chat.id %}" class="text-decoration-none">
-                <div class="card p-4 mb-3 d-flex flex-row align-items-center gap-3">
-                    {% if recipient.profile_image %}
-                    <div class="position-relative">
-                        <img src="{{ recipient.profile_image.url }}" class="rounded-circle" style="width:55px;height:55px;object-fit:cover;">
-                        <span class="position-absolute bottom-0 end-0 badge rounded-circle p-1 {% if recipient.is_online %}bg-success{% else %}bg-secondary{% endif %}" style="width:14px;height:14px;"></span>
-                    </div>
-                    {% else %}
-                    <div class="rounded-circle bg-primary-soft d-flex align-items-center justify-content-center flex-shrink-0 position-relative" style="width:55px;height:55px;">
-                        <i class="bi bi-person-fill text-primary-custom fs-4"></i>
-                    </div>
-                    {% endif %}
-                    <div class="flex-grow-1">
-                        <div class="d-flex justify-content-between">
-                            <span class="fw-700">{{ recipient.username }}</span>
-                            {% if last %}
-                            <small class="text-muted">{{ last.created_at|timesince }} oldin</small>
-                            {% endif %}
-                        </div>
-                        <p class="text-muted small mb-0 text-truncate" style="max-width:300px;">
-                            {% if last %}
-                                {% if last.text %}{{ last.text }}{% else %}<i class="bi bi-image"></i> Rasm{% endif %}
-                            {% else %}
-                                Xabar yo'q
-                            {% endif %}
-                        </p>
-                    </div>
-                </div>
-            </a>
-            {% endwith %}
-            {% endfor %}
+                {% for chat in chats %}
+                    {# Har bir chat uchun suhbatdoshni (recipient) topamiz #}
+                    {% for participant in chat.participants.all %}
+                        {% if participant != request.user %}
+
+                            <a href="{% url 'chat_detail' chat.id %}" class="text-decoration-none">
+                                <div class="card p-4 mb-3 d-flex flex-row align-items-center gap-3 border-0 shadow-sm" style="border-radius: 15px;">
+
+                                    {# Profil rasmi qismi #}
+                                    <div class="position-relative">
+                                        {% if participant.profile_image %}
+                                            <img src="{{ participant.profile_image.url }}" class="rounded-circle" style="width:55px;height:55px;object-fit:cover;">
+                                        {% else %}
+                                            <div class="rounded-circle bg-light d-flex align-items-center justify-content-center flex-shrink-0" style="width:55px;height:55px;">
+                                                <i class="bi bi-person-fill text-secondary fs-4"></i>
+                                            </div>
+                                        {% endif %}
+                                        {# Onlayn status (agar modelingizda bo'lsa) #}
+                                        <span class="position-absolute bottom-0 end-0 badge rounded-circle p-1 {% if participant.is_online %}bg-success{% else %}bg-secondary{% endif %}" style="width:14px;height:14px; border: 2px solid white;"></span>
+                                    </div>
+
+                                    {# Matn qismi #}
+                                    <div class="flex-grow-1">
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <span class="fw-700 text-dark fs-5">{{ participant.username }}</span>
+                                            {% if chat.last_message %}
+                                                <small class="text-muted">{{ chat.last_message.created_at|timesince }} oldin</small>
+                                            {% endif %}
+                                        </div>
+                                        <p class="text-muted small mb-0 text-truncate" style="max-width:300px;">
+                                            {% if chat.last_message %}
+                                                {% if chat.last_message.text %}
+                                                    {{ chat.last_message.text }}
+                                                {% else %}
+                                                    <i class="bi bi-image"></i> Rasm yuborildi
+                                                {% endif %}
+                                            {% else %}
+                                                <span class="fst-italic">Hali xabarlar yo'q</span>
+                                            {% endif %}
+                                        </p>
+                                    </div>
+
+                                    <div class="ms-auto text-primary">
+                                        <i class="bi bi-chevron-right"></i>
+                                    </div>
+                                </div>
+                            </a>
+
+                        {% endif %}
+                    {% endfor %}
+                {% endfor %}
             {% else %}
-            <div class="text-center py-5 my-5">
-                <div style="width:120px;height:120px;background:#ede9fe;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 24px;">
-                    <i class="bi bi-chat-square-dots" style="font-size:3.5rem;color:#6366f1;"></i>
+                {# Chatlar yo'q bo'lsa chiqadigan blok #}
+                <div class="text-center py-5 my-5">
+                    <div style="width:120px;height:120px;background:#f3f4f6;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 24px;">
+                        <i class="bi bi-chat-left-dots text-muted" style="font-size:3rem;"></i>
+                    </div>
+                    <h4 class="fw-700 mb-2">Xabarlar yo'q</h4>
+                    <p class="text-muted">Sotuvchi bilan bog'lanish orqali suhbat boshlang.</p>
                 </div>
-                <h4 class="fw-700 mb-2">Xabarlar yo'q</h4>
-                <p class="text-muted">Mahsulot sahifasidagi "Xabar" tugmasi orqali suhbat boshlang</p>
-            </div>
             {% endif %}
         </div>
     </div>

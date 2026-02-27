@@ -134,7 +134,11 @@ class AddCartView(LoginRequiredMixin,View):
 class CartView(LoginRequiredMixin,View):
     def get(self,request):
         cart=Cart.objects.filter(user=request.user,is_ordered=False).first()
-        return render(request,'cart.html',{'cart':cart})
+        if cart:
+            cart_count = cart.items.count()
+        else:
+            cart_count = 0
+        return render(request,'cart.html',{'cart':cart,'cart_count':cart_count})
 
 
 class RemoveFromCartView(LoginRequiredMixin,View):
@@ -184,7 +188,7 @@ class CommentDelete(LoginRequiredMixin,View):
 
 class OrderStatusView(LoginRequiredMixin,View):
     def get(self,request):
-        order=OrderItem.objects.filter(product__user=request.user).select_related('order','product')
+        order=OrderItem.objects.filter(product__auth=request.user).select_related('order','product')
         context={
             'order':order
         }
@@ -192,11 +196,10 @@ class OrderStatusView(LoginRequiredMixin,View):
     def post(self,request):
         order_item_id=request.POST.get('order_item_id')
         new_status=request.POST.get('status')
-        orderitem=get_object_or_404(OrderItem,id=order_item_id,product__user=request.user)
+        orderitem=get_object_or_404(OrderItem,id=order_item_id,product__auth=request.user)
         seller=request.user
         order=orderitem.order
-
-
+        user=order.user
         if new_status in dict(Order.STATUS_CHOICES).keys():
             old_status = order.status
             if new_status=='cancelled':
@@ -205,9 +208,9 @@ class OrderStatusView(LoginRequiredMixin,View):
                     product.stock += item.quantity
 
                     seller.balance -= order.total_price
+                    user.balance+=order.total_price
+                    user.save()
                     seller.save()
-
-
                     product.save()
             order.status=new_status
             order.save()
@@ -218,4 +221,4 @@ class OrderStatusView(LoginRequiredMixin,View):
         else:
             messages.error(request, "Noto'g'ri holat tanlandi!")
 
-        return redirect("orderstatus")
+        return redirect("order_detail")

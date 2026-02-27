@@ -10,7 +10,7 @@ from django.contrib.auth import authenticate, login, logout
 from .models import *
 from products.models import *
 from decimal import Decimal, InvalidOperation
-
+from orders.models import *
 def generate():
     return ''.join([str(random.randint(0,9)) for i in range(6)])
 class Register(View):
@@ -218,3 +218,6 @@ class ConfirmRecovery(View):
             return render(request, 'auth/rec_code.html', {
                 "error": "No`to`g`ri Kod Kiritildi"
             })
+
+
+

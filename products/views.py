@@ -1,10 +1,11 @@
+
 from django.contrib import messages
 from django.shortcuts import render,redirect,get_object_or_404
 from django.contrib.auth import get_user_model
 from .models import *
 from django.views import View
 from django.contrib.auth.mixins import LoginRequiredMixin
-from orders.models import  OrderItem
+from orders.models import OrderItem, Order
 from django.db.models import Sum
 from users.models import *
 from django.db.models import Q
@@ -18,11 +19,21 @@ class DashboardView(LoginRequiredMixin, View):
         product = Products.objects.filter(auth=request.user)
 
         chat = Chat.objects.filter(participants=request.user)
-
+        seller_orders = OrderItem.objects.filter(product__auth=request.user)
+        foydalanuvchi=seller_orders.values('order__user').distinct().count()
+        total_orders_count = seller_orders.count()
+        product_count=product.distinct().count()
+        daromad = seller_orders.exclude(order__status='pending').aggregate(
+            total=Sum('price')
+        )['total'] or 0
 
         context = {
             'product': product,
             'chat': chat,
+            'total_orders': total_orders_count,
+            'daromad':daromad,
+            'foydalanuvchi':foydalanuvchi,
+            'product_count':product_count
         }
         return render(request, 'dashboard.html', context)
 
@@ -140,8 +151,18 @@ class ProductDetails(View):
 class ProductView(View):
     def get(self,request):
         products=Products.objects.filter().order_by('category')
+        category=Category.objects.all()
+        category_id = request.GET.get('category')
+        if category_id:
+            products=products.filter(category_id=category_id)
+        search = self.request.GET.get('q')
+        if search:
+            products = Products.objects.filter(Q(title__icontains=search)).distinct()
+        else:
+            messages.success(request, "Mahsulot topilmadi")
         return render(request,'index.html',{
             'products':products,
+            'category':category
             })
 
 class WishesView(View):
@@ -204,6 +225,9 @@ class ChatDetail(LoginRequiredMixin,View):
                 image=image
             )
         return redirect('chat_detail', chat_id=chat.id)
+
+
+
 class ChatCreate(LoginRequiredMixin,View):
     def get(self,request,recipient_id):
         chat=Chat.objects.filter(participants=request.user).filter(participants__id=recipient_id).first()
@@ -215,6 +239,7 @@ class ChatCreate(LoginRequiredMixin,View):
 
         return redirect('chat_detail', chat_id=chat.id)
 
+
 class MessageUpdate(LoginRequiredMixin,View):
     def post(self,request,message_id):
         message=get_object_or_404(Messages,id=message_id,user=request.user)
@@ -225,6 +250,7 @@ class MessageUpdate(LoginRequiredMixin,View):
             message.save()
         return redirect('chat_detail',chat_id=message.chat.id)
 
+
 class MessageDelete(LoginRequiredMixin,View):
     def post(self,request,message_id):
         message=get_object_or_404(Messages,id=message_id,user=request.user)
@@ -233,12 +259,5 @@ class MessageDelete(LoginRequiredMixin,View):
         return redirect('chat_detail',chat_id=message.chat.id)
 
 
-class ProductSearch(View):
-    def get(self,request):
-        search=self.request.GET.get('q')
-        if search:
-            products=Products.objects.filter(Q(title__icontains=search)).distinct()
-        else:
-            messages.success(request,"Mahsulot topilmadi")
-        return render(request,'home.html',{'products':products})
+
 
