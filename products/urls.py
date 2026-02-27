@@ -10,5 +10,5 @@ urlpatterns=[
     path('addwishlist/<int:id>/',Addwish.as_view(),name='addwishlist'),
     path('product/delete/<int:pk>/',ProductDelete.as_view(),name='product_delete'),
     path('categories', CategoriesView.as_view(),name='categories'),
-    path('categoriesname/', CategoryDetail.as_view(), name='categoryname'),
+    path('categoriesname/<int:pk>/', CategoryDetail.as_view(), name='categoryname'),
 ]
