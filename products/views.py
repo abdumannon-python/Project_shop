@@ -211,3 +211,5 @@ class MessageDelete(LoginRequiredMixin,View):
         return redirect('chat_detail',chat_id=message.chat.id)
 
 
+class ProductSearch(View):
+    pass
