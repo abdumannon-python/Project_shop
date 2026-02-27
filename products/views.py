@@ -1,7 +1,7 @@
 from django.core.handlers.base import reset_urlconf
 from django.shortcuts import render,redirect,get_object_or_404
 from django.contrib.auth import get_user_model
-from .models import Products,Category,Wishlis,ProductImages
+from .models import *
 from django.views import View
 from django.contrib.auth.mixins import LoginRequiredMixin
 from users.models import Comment
@@ -106,12 +106,12 @@ class ProductDetails(View):
 
     def post(self, request, pk):
         post = get_object_or_404(Products, pk=pk)
-        wishlis = get_object_or_404(Wishlis, user_id=request.user.id)
+        wishlist = get_object_or_404(Wishlist, user_id=request.user.id)
 
-        if wishlis:
-            wishlis.delete()
+        if wishlist:
+            wishlist.delete()
         else:
-            Wishlis.objects.create(user=request.user, product=post)
+            Wishlist.objects.create(user=request.user, product=post)
 
         return redirect('product_detail')
 
@@ -129,7 +129,7 @@ class ProductView(View):
 class WishesView(View):
     def get(self, request, id):
         user = get_object_or_404(User, id = id)
-        wish = Wishlis.objects.filter(user=user)
+        wish = Wishlist.objects.filter(user=user)
         return render(request, 'wishes.html',{
             "user": user,
             "wish": wish
@@ -141,11 +141,11 @@ class Addwish(LoginRequiredMixin ,View):
     login_url = 'login'
     def post(self, request, id):
         post = get_object_or_404(Products, id = id)
-        wishlis=get_object_or_404(Wishlis,user_id = request.user.id)
+        wishlis=get_object_or_404(Wishlist,user_id = request.user.id)
 
         if wishlis:
             wishlis.delete()
         else:
-            Wishlis.objects.create(user=request.user,product=post)
+            Wishlist.objects.create(user=request.user,product=post)
 
         return redirect('home')

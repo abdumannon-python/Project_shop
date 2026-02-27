@@ -158,8 +158,7 @@ class UpdateUser(View):
 
 class LogoutView(View):
     def get(self, request, id):
-        user = User.objects.get(id=request.id)
-        logout(user)
+        logout(request)
         return redirect('login')
 
 class Recovery(View):
