@@ -73,7 +73,25 @@ class ProductDelete(LoginRequiredMixin,View):
         product.delete()
         return redirect('home')
 
+class CategoriesView(LoginRequiredMixin,View):
+    login_url = 'login'
+    def get(self, request):
+        categories=Category.objects.all()
+        return render(request, 'category.html', {
+            'categories':categories
+        })
 
+class CategoryDetail(LoginRequiredMixin,View):
+    login_url = 'login'
+    def get(self, request, pk):
+        category=get_object_or_404(Category,pk=pk)
+        products=Products.objects.filter(category=category)
+        user = User.objects.all()
+        return render(request, 'category_detail.html', {
+            "user": user,
+            "category":category,
+            "products":products
+        })
 class ProductDetails(View):
     def get(self,request,pk):
         products=get_object_or_404(Products,pk=pk)

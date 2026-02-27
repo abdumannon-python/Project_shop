@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ category.name }} | Mahsulotlar</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { background-color: #f4f7f6; font-family: 'Inter', sans-serif; }
+        .navbar { background: #fff; box-shadow: 0 2px 15px rgba(0,0,0,0.1); }
+        .category-banner { background: #fff; border-radius: 15px; padding: 30px; margin-bottom: 30px; border: 1px solid #eee; }
+        .product-card {
+            border: none;
+            border-radius: 12px;
+            transition: 0.3s;
+            background: #fff;
+            height: 100%;
+        }
+        .product-card:hover { transform: translateY(-5px); box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
+        .img-box { height: 200px; overflow: hidden; border-radius: 12px 12px 0 0; }
+        .img-box img { width: 100%; height: 100%; object-fit: cover; }
+        .price { font-size: 1.25rem; font-weight: 700; color: #0d6efd; }
+        .user-avatar { width: 35px; height: 35px; border-radius: 50%; background: #eee; display: flex; align-items: center; justify-content: center; }
+    </style>
+</head>
+<body>
+
+<nav class="navbar navbar-expand-lg sticky-top mb-4">
+    <div class="container">
+        <a class="navbar-brand fw-bold text-primary" href="/">MYSTORE</a>
+
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navRes">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navRes">
+            <ul class="navbar-nav ms-auto align-items-center">
+                <li class="nav-item"><a class="nav-link px-3" href="/">Asosiy</a></li>
+
+                {% if request.user.is_authenticated %}
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" role="button" data-bs-toggle="dropdown">
+                            <div class="user-avatar me-2"><i class="fas fa-user text-secondary"></i></div>
+                            <span>{{ request.user.username }}</span>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end shadow border-0">
+                            <li><a class="dropdown-item" href="/profile/"><i class="fas fa-user-circle me-2"></i>Profil</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li>
+                                <form action="{% url 'logout' %}" method="post">
+                                    {% csrf_token %}
+                                    <button type="submit" class="dropdown-item text-danger border-0 bg-transparent">
+                                        <i class="fas fa-sign-out-alt me-2"></i>Chiqish
+                                    </button>
+                                </form>
+                            </li>
+                        </ul>
+                    </li>
+                {% else %}
+                    <li class="nav-item">
+                        <a class="nav-link px-3" href="{% url 'login' %}">Kirish</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="btn btn-primary btn-sm ms-2 px-3 rounded-pill" href="/register/">Ro'yxatdan o'tish</a>
+                    </li>
+                {% endif %}
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<div class="container">
+    <div class="category-banner shadow-sm">
+        <div class="row align-items-center">
+            <div class="col-md-8">
+                <h1 class="fw-bold mb-0">{{ category.name }}</h1>
+                <p class="text-muted mt-2 mb-0">Jami: {{ products.count }} ta mahsulot topildi</p>
+            </div>
+            <div class="col-md-4 text-md-end mt-3 mt-md-0">
+                <a href="/" class="btn btn-outline-secondary rounded-pill">Orqaga</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4 mb-5">
+        {% for product in products %}
+        <div class="col-6 col-md-4 col-lg-3">
+            <div class="card product-card shadow-sm">
+                <div class="img-box">
+                    {% if product.main_image %}
+                        <img src="{{ product.main_image.url }}" alt="{{ product.title }}">
+                    {% else %}
+                        <img src="https://via.placeholder.com/300" alt="No image">
+                    {% endif %}
+                </div>
+                <div class="card-body">
+                    <small class="text-uppercase text-muted fw-bold" style="font-size: 0.7rem;">{{ product.brand }}</small>
+                    <h6 class="card-title text-truncate mt-1 mb-2">{{ product.title }}</h6>
+                    <div class="d-flex justify-content-between align-items-center mt-3">
+                        <span class="price">${{ product.price }}</span>
+                        <a href="#" class="btn btn-sm btn-light border rounded-circle">
+                            <i class="fas fa-eye"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12 text-center py-5">
+            <div class="text-muted">
+                <i class="fas fa-box-open fa-3x mb-3"></i>
+                <h5>Hozircha mahsulotlar mavjud emas.</h5>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
