@@ -34,9 +34,10 @@ class ProductCreate(LoginRequiredMixin,View):
         )
         product.save()
         images=request.FILES.getlist('images')
-        for imgage in images:
-            ProductImages.objects.create(product=product,imgage=imgage)
-        return redirect('dashboard')
+        if images:
+            for image in images:
+                ProductImages.objects.create(product=product,image=image)
+        return redirect('home')
 
 
 
@@ -86,8 +87,8 @@ class ProductDelete(LoginRequiredMixin,View):
 class ProductDetails(View):
     def get(self,request,pk):
         products=get_object_or_404(Products,pk=pk)
-        category=Category.objects.filter(id=products.category).exclude(pk=pk)[:4]
-        comment=Comment.objects.filter(prost_id=pk)
+        category=Products.objects.filter(category_id=products.category_id).exclude(pk=pk)[:4]
+        comment=Comment.objects.filter(post_id=pk)
         last_week = timezone.now() - timedelta(days=7)
         order = OrderItem.objects.filter(product_id=pk,created_at__gte=last_week).exclude(order__status='cancelled')
         user_count=order.values('user').distinct().count()

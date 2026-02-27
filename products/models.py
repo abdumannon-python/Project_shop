@@ -38,9 +38,6 @@ class ProductImages(models.Model):
     image=models.ImageField(upload_to='product_images/',null=True,blank=True)
 
 
-    def __str__(self):
-        return self.product.title
-
 class Wishlist(models.Model):
     user=models.ForeignKey(User,on_delete=models.CASCADE,related_name='wishlist')
     product=models.ForeignKey(Products,on_delete=models.CASCADE,related_name='product')
