@@ -33,4 +33,5 @@ class Emailcode(models.Model):
 class Comment(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='comment')
     post = models.ForeignKey('products.Products', on_delete=models.CASCADE, related_name='comment')
+    created_at=models.DateTimeField(auto_now_add=True)
     text = models.TextField()

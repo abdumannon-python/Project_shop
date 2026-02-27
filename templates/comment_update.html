@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+
+{% block title %}Izohni tahrirlash{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-sm border-0" style="border-radius: 15px;">
+                <div class="card-header bg-white py-3 border-0">
+                    <h5 class="fw-700 mb-0 text-primary">
+                        <i class="bi bi-pencil-square me-2"></i>Izohni tahrirlash
+                    </h5>
+                </div>
+
+                <div class="card-body p-4">
+                    <div class="alert alert-light border-0 d-flex align-items-center gap-3 mb-4" style="background: #f8fafc;">
+                        {% if products.main_image %}
+                            <img src="{{ products.main_image.url }}" style="width: 50px; height: 50px; object-fit: cover; border-radius: 8px;">
+                        {% endif %}
+                        <div>
+                            <small class="text-muted d-block">Mahsulot:</small>
+                            <strong>{{ products.title }}</strong>
+                        </div>
+                    </div>
+
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label class="form-label fw-600 text-muted">Sizning fikringiz</label>
+                            <textarea class="form-control" name="text" rows="5"
+                                      placeholder="Fikringizni shu yerga yozing..."
+                                      style="border-radius: 12px; resize: none;" required>{{ comment.text }}</textarea>
+                        </div>
+
+                        <div class="d-flex gap-2 justify-content-end mt-4">
+                            <a href="{% url 'product_detail' products.pk %}" class="btn btn-light px-4 py-2" style="border-radius: 10px;">
+                                Bekor qilish
+                            </a>
+                            <button type="submit" class="btn btn-primary px-4 py-2" style="border-radius: 10px;">
+                                O'zgarishlarni saqlash <i class="bi bi-check-lg ms-1"></i>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

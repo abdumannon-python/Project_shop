@@ -95,7 +95,9 @@
                 </form>
                 <form method="post" action="{% url 'addwishlist' products.id %}">
                     {% csrf_token %}
-                    <button class="btn btn-outline-danger py-3 px-4"><i class="bi bi-heart-fill"></i></button>
+                    <button class="btn {% if is_wished %}btn-danger{% else %}btn-outline-danger{% endif %} py-3 px-4">
+                        <i class="bi bi-heart-fill"></i>
+                        </button>
                 </form>
             </div>
             {% if request.user == products.auth %}
@@ -122,54 +124,62 @@
             <h5 class="section-title mb-4"><i class="bi bi-chat-dots me-2"></i>Izohlar ({{ comment.count }})</h5>
 
             {% if user.is_authenticated %}
-            <div class="card p-4 mb-4">
+            <div class="card p-4 mb-4 shadow-sm border-0" style="border-radius: 15px;">
                 <h6 class="fw-700 mb-3">Izoh qoldiring</h6>
                 <form method="post">
                     {% csrf_token %}
-                    <textarea class="form-control mb-3" name="text" rows="3" placeholder="Fikringizni yozing..." style="border-radius:12px;"></textarea>
-                    <button class="btn btn-primary">Yuborish <i class="bi bi-send ms-1"></i></button>
+                    <textarea class="form-control mb-3" name="text" rows="3" placeholder="Fikringizni yozing..." style="border-radius:12px;" required></textarea>
+                    <button class="btn btn-primary shadow-sm px-4">Yuborish <i class="bi bi-send ms-1"></i></button>
                 </form>
             </div>
             {% endif %}
 
             {% for c in comment %}
-            <div class="card p-4 mb-3">
-                <div class="d-flex align-items-center gap-3 mb-2">
-                    {% if c.user.profile_image %}
-                    <img src="{{ c.user.profile_image.url }}" class="avatar" alt="">
-                    {% else %}
-                    <div class="avatar bg-primary-soft d-flex align-items-center justify-content-center">
-                        <i class="bi bi-person-fill text-primary-custom"></i>
+            <div class="card p-4 mb-3 shadow-sm border-0" style="border-radius: 15px;">
+                <div class="d-flex justify-content-between align-items-start mb-2">
+                    <div class="d-flex align-items-center gap-3">
+                        {% if c.user.profile_image %}
+                        <img src="{{ c.user.profile_image.url }}" class="avatar rounded-circle" style="width: 45px; height: 45px; object-fit: cover;">
+                        {% else %}
+                        <div class="avatar bg-light d-flex align-items-center justify-content-center rounded-circle" style="width: 45px; height: 45px;">
+                            <i class="bi bi-person-fill text-secondary"></i>
+                        </div>
+                        {% endif %}
+                        <div>
+                            <span class="fw-700 d-block">{{ c.user.username }}</span>
+                            <small class="text-muted">{{ c.created_at|date:"d.m.Y H:i" }}</small>
+                        </div>
+                    </div>
+
+                    {% if c.user == request.user %}
+                    <div class="dropdown">
+                        <button class="btn btn-link text-muted p-0" data-bs-toggle="dropdown">
+                            <i class="bi bi-three-dots-vertical"></i>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end shadow border-0">
+                            <li>
+                                <a class="dropdown-item text-primary" href="{% url 'comment_update' c.id %}">
+                                    <i class="bi bi-pencil me-2"></i>Tahrirlash
+                                </a>
+                            </li>
+                            <li>
+                                <form action="{% url 'comment_delete' c.id %}" method="post" onsubmit="return confirm('Izohni oʻchirishni xohlaysizmi?')">
+                                    {% csrf_token %}
+                                    <button type="submit" class="dropdown-item text-danger">
+                                        <i class="bi bi-trash me-2"></i>O'chirish
+                                    </button>
+                                </form>
+                            </li>
+                        </ul>
                     </div>
                     {% endif %}
-                    <div>
-                        <span class="fw-700">{{ c.user.username }}</span>
-                        <br><small class="text-muted">{{ c.created_at|date:"d.m.Y" }}</small>
-                    </div>
                 </div>
-                <p class="mb-0 text-muted">{{ c.text }}</p>
+                <p class="mb-0 text-dark opacity-75" style="line-height: 1.6;">{{ c.text }}</p>
             </div>
             {% empty %}
-            <div class="card p-4 text-center text-muted">
-                <i class="bi bi-chat-square-text fs-2 mb-2"></i>
-                <p class="mb-0">Hozircha izoh yo'q. Birinchi bo'ling!</p>
-            </div>
-            {% endfor %}
-        </div>
-
-        <!-- Related products -->
-        <div class="col-lg-4">
-            <h6 class="fw-700 mb-3">O'xshash mahsulotlar</h6>
-            {% for p in category %}
-            <div class="card p-3 mb-3 d-flex flex-row gap-3">
-                {% if p.main_image %}
-                <img src="{{ p.main_image.url }}" style="width:70px;height:70px;object-fit:cover;border-radius:10px;" alt="">
-                {% endif %}
-                <div>
-                    <p class="mb-1 fw-600 small">{{ p.title }}</p>
-                    <span class="text-primary-custom fw-700 small">{{ p.discount_price|floatformat:0 }} so'm</span>
-                    <br><a href="{% url 'product_detail' p.pk %}" class="btn btn-sm btn-outline-primary mt-1" style="font-size:11px;">Ko'rish</a>
-                </div>
+            <div class="card p-5 text-center text-muted border-dashed" style="border: 2px dashed #dee2e6; border-radius: 15px;">
+                <i class="bi bi-chat-square-text fs-1 mb-2 opacity-25"></i>
+                <p class="mb-0">Hozircha izoh yo'q.</p>
             </div>
             {% endfor %}
         </div>

@@ -6,7 +6,7 @@ from django.db import transaction
 from .models import Cart, CartItem
 from orders.models import Order, OrderItem
 from products.models import Products
-
+from users.models import Comment
 
 
 class CheckoutView(LoginRequiredMixin, View):
@@ -28,7 +28,7 @@ class CheckoutView(LoginRequiredMixin, View):
         cart = Cart.objects.filter(user=request.user, is_ordered=False).first()
         if not cart or not cart.items.exists():
             messages.error(request, "Savat bo'sh, buyurtma berib bo'lmaydi.")
-            return redirect('products')
+            return redirect('home')
 
         total_price = cart.total_price
 
@@ -50,19 +50,21 @@ class CheckoutView(LoginRequiredMixin, View):
                 if item.product.stock < item.quantity:
                     messages.error(request, f"{item.product.title} mahsuloti omborda yetarli emas.")
                     raise Exception("Ombor yetishmovchiligi")
-
+                product=item.product
                 OrderItem.objects.create(
                     order=order,
-                    product=item.product,
-                    price=item.product.discount_price or item.product.price,
+                    product=product,
+                    price=product.discount_price or product.price,
                     quantity=item.quantity,
-                    product_title=item.product.title,
-                    product_image=item.product.main_image
+                    product_title=product.title,
+                    product_image=product.main_image
                 )
 
-                item.product.stock -= item.quantity
-                item.product.save()
-
+                product.stock -= item.quantity
+                product.save()
+                seller=product.auth
+                seller.balance+=total_price
+                seller.save()
             request.user.balance -= total_price
             request.user.save()
 
@@ -70,7 +72,7 @@ class CheckoutView(LoginRequiredMixin, View):
             cart.save()
 
         messages.success(request, "Buyurtmangiz muvaffaqiyatli yaratildi va pul yechildi!")
-        return redirect('order_success')
+        return render(request, 'order_success.html', {'order': order})
 
 
 class OrderListView(LoginRequiredMixin, View):
@@ -92,11 +94,19 @@ class OrderDetailView(LoginRequiredMixin, View):
 class OrderCancelView(LoginRequiredMixin, View):
     def post(self, request, pk):
         order = get_object_or_404(Order, id=pk, user=request.user)
-
+        User=request.user
         if order.status == 'pending':
             with transaction.atomic():
                 for item in order.items.all():
-                    item.product.stock += item.quantity
+                    product=item.product
+                    product.stock += item.quantity
+                    product.save()
+                    seller = product.auth
+                    seller.balance -= order.total_price
+                    User.balance+=order.total_price
+                    User.save()
+                    seller.save()
+
                     item.product.save()
 
                 order.status = 'cancelled'
@@ -109,8 +119,8 @@ class OrderCancelView(LoginRequiredMixin, View):
 
 
 class AddCartView(LoginRequiredMixin,View):
-    def post(self,request,id):
-        product=get_object_or_404(Products,id=id)
+    def post(self,request,pk):
+        product=get_object_or_404(Products,pk=pk)
         cart,created=Cart.objects.get_or_create(user=request.user,is_ordered=False)
 
         cart_item,item_created=CartItem.objects.get_or_create(cart=cart,product=product)
@@ -147,3 +157,65 @@ class DeleteCart(LoginRequiredMixin,View):
         CartItem.objects.filter(cart=cart,product_id=product_id).delete()
         return redirect('cart_view')
 
+class CommentUpdate(LoginRequiredMixin,View):
+    def get(self, request, comment_id):
+        comment = get_object_or_404(Comment, id=comment_id, user=request.user)
+        products = comment.post
+        return render(request, 'comment_update.html', {'comment': comment,
+                                                       'products': products
+                                                       })
+    def post(self,request, comment_id):
+        comment=get_object_or_404(Comment,id=comment_id,user=request.user)
+        text=request.POST.get('text')
+        if text:
+            comment.text=text
+            comment.save()
+            messages.success(request, "Sharh yangilandi")
+            return redirect('product_detail', pk=comment.post.pk)
+        return render(request, 'comment_update.html', {'comment': comment, 'products': comment.post})
+
+
+class CommentDelete(LoginRequiredMixin,View):
+    def post(self,request,comment_id):
+        comment = get_object_or_404(Comment,id=comment_id,user=request.user)
+        comment.delete()
+        messages.success(request, "Sharh o‘chirildi")
+        return redirect('product_detail', pk=comment.post.pk)
+
+class OrderStatusView(LoginRequiredMixin,View):
+    def get(self,request):
+        order=OrderItem.objects.filter(product__user=request.user).select_related('order','product')
+        context={
+            'order':order
+        }
+        return render(request,'orders.html',context)
+    def post(self,request):
+        order_item_id=request.POST.get('order_item_id')
+        new_status=request.POST.get('status')
+        orderitem=get_object_or_404(OrderItem,id=order_item_id,product__user=request.user)
+        seller=request.user
+        order=orderitem.order
+
+
+        if new_status in dict(Order.STATUS_CHOICES).keys():
+            old_status = order.status
+            if new_status=='cancelled':
+                for item in order.items.all():
+                    product = item.product
+                    product.stock += item.quantity
+
+                    seller.balance -= order.total_price
+                    seller.save()
+
+
+                    product.save()
+            order.status=new_status
+            order.save()
+            messages.success(
+                request,
+                f"Buyurtma #{order.id} holati '{old_status}' dan '{new_status}' ga o'zgartirildi!"
+            )
+        else:
+            messages.error(request, "Noto'g'ri holat tanlandi!")
+
+        return redirect("orderstatus")

@@ -12,6 +12,23 @@ from django.db.models import Q
 User=get_user_model()
 
 
+class DashboardView(LoginRequiredMixin, View):
+    def get(self, request):
+
+        product = Products.objects.filter(auth=request.user)
+
+        chat = Chat.objects.filter(participants=request.user)
+
+
+        context = {
+            'product': product,
+            'chat': chat,
+        }
+        return render(request, 'dashboard.html', context)
+
+
+
+
 class ProductCreate(LoginRequiredMixin,View):
     def get(self,request):
         category=Category.objects.all()
@@ -81,7 +98,7 @@ class ProductDelete(LoginRequiredMixin,View):
     def get(self,request,pk):
         product=get_object_or_404(Products,pk=pk,auth=request.user)
         product.delete()
-        return redirect('dashboard')
+        return redirect('home')
 
 
 class ProductDetails(View):
@@ -90,8 +107,8 @@ class ProductDetails(View):
         category=Products.objects.filter(category_id=products.category_id).exclude(pk=pk)[:4]
         comment=Comment.objects.filter(post_id=pk)
         last_week = timezone.now() - timedelta(days=7)
-        order = OrderItem.objects.filter(product_id=pk,created_at__gte=last_week).exclude(order__status='cancelled')
-        user_count=order.values('user').distinct().count()
+        order = OrderItem.objects.filter(product_id=pk,order__created_at__gte=last_week).exclude(order__status='cancelled')
+        user_count=order.values('order').distinct().count()
         count_product=order.aggregate(total=Sum('quantity'))['total'] or 0
         context={
             'products':products,
@@ -102,17 +119,21 @@ class ProductDetails(View):
         }
 
         return render(request,'product_detail.html',context)
+    def post(self,request,pk):
 
-    def post(self, request, pk):
-        post = get_object_or_404(Products, pk=pk)
-        wishlist = get_object_or_404(Wishlist, user_id=request.user.id)
+        product=get_object_or_404(Products,pk=pk)
 
-        if wishlist:
-            wishlist.delete()
-        else:
-            Wishlist.objects.create(user=request.user, product=post)
+        comment_text=request.POST.get('text')
 
-        return redirect('product_detail')
+        if comment_text:
+            Comment.objects.create(
+                post_id=product.id,
+                user=request.user,
+                text=comment_text,
+            )
+            return redirect('product_detail', pk=pk)
+        return redirect('product_detail', pk=pk)
+
 
 
 
@@ -136,16 +157,16 @@ class WishesView(View):
 
 class Addwish(LoginRequiredMixin ,View):
     login_url = 'login'
-    def post(self, request, id):
-        post = get_object_or_404(Products, id = id)
-        wishlis=get_object_or_404(Wishlist,user_id = request.user.id)
+    def post(self, request, pk):
+        product = get_object_or_404(Products, pk = pk)
+        wishlis=Wishlist.objects.filter(user = request.user,product=product).first()
 
         if wishlis:
             wishlis.delete()
         else:
-            Wishlist.objects.create(user=request.user,product=post)
+            Wishlist.objects.create(user=request.user,product=product)
 
-        return redirect('home')
+        return redirect(request.META.get('HTTP_REFERER', 'home'))
 
 
 class ChatView(LoginRequiredMixin,View):

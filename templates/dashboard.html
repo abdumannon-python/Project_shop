@@ -80,7 +80,7 @@
                 <a href="{% url 'profile' request.user.id %}" class="btn btn-outline-secondary px-4 py-2 fw-600">
                     <i class="bi bi-person me-2"></i>Profil
                 </a>
-                <a href="/admin/" class="btn btn-outline-dark px-4 py-2 fw-600">
+                <a href="/dashboard/" class="btn btn-outline-dark px-4 py-2 fw-600">
                     <i class="bi bi-gear me-2"></i>Admin panel
                 </a>
             </div>
@@ -108,7 +108,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            {% for product in my_products %}
+                            {% for product in product %}
                             <tr>
                                 <td>
                                     <div class="d-flex align-items-center gap-3">
