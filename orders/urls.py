@@ -1,4 +1,3 @@
-
 from django.urls import path
 from .views import *
 urlpatterns = [
@@ -7,7 +6,7 @@ urlpatterns = [
     path('order/<int:pk>/', OrderDetailView.as_view(), name='order_detail'),
     path('order/<int:pk>/cancel/', OrderCancelView.as_view(), name='order_cancel'),
     path('addcart/<int:id>',AddCartView.as_view(),name='addcart'),
-    path('cartview/', CartView.as_view(), name='cart_view'),
+    path('cartview/', CartView.as_view(), name='cartview'),
     path('cartremove/<int:id>', RemoveFromCartView.as_view(), name='cartremove'),
     path('cartdelete/<int:product_id>',DeleteCart.as_view(),name='cartdelete'),
 ]

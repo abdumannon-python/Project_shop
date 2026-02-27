@@ -1,0 +1,185 @@
+{% extends 'base.html' %}
+{% block title %}{{ recipient.username }} bilan suhbat{% endblock %}
+
+{% block extra_css %}
+<style>
+.chat-container { height: 500px; overflow-y: auto; background: #f8fafc; border-radius: 16px; padding: 20px; }
+.message-bubble { max-width: 65%; }
+.message-mine { background: #6366f1; color: white; border-radius: 18px 18px 4px 18px; }
+.message-other { background: white; color: #0f172a; border-radius: 18px 18px 18px 4px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+.message-time { font-size: 11px; opacity: 0.6; }
+.chat-input-area { background: white; border-radius: 0 0 16px 16px; padding: 16px; border-top: 1px solid #f1f5f9; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <!-- Header -->
+            <div class="card p-3 mb-0" style="border-radius:16px 16px 0 0;border-bottom:none;">
+                <div class="d-flex align-items-center gap-3">
+                    <a href="javascript:history.back()" class="btn btn-sm btn-outline-secondary"><i class="bi bi-arrow-left"></i></a>
+                    {% if recipient.profile_image %}
+                    <div class="position-relative">
+                        <img src="{{ recipient.profile_image.url }}" class="rounded-circle" style="width:45px;height:45px;object-fit:cover;">
+                        <span class="position-absolute bottom-0 end-0 badge rounded-circle {% if recipient.is_online %}bg-success{% else %}bg-secondary{% endif %}" style="width:12px;height:12px;padding:0;"></span>
+                    </div>
+                    {% else %}
+                    <div class="rounded-circle bg-primary-soft d-flex align-items-center justify-content-center" style="width:45px;height:45px;">
+                        <i class="bi bi-person-fill text-primary-custom"></i>
+                    </div>
+                    {% endif %}
+                    <div>
+                        <h6 class="fw-700 mb-0">{{ recipient.username }}</h6>
+                        <small class="text-{% if recipient.is_online %}success{% else %}muted{% endif %}">
+                            {% if recipient.is_online %}Online{% else %}Offline{% endif %}
+                        </small>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Messages -->
+            <div class="chat-container" id="chatBox">
+                {% if messages %}
+                {% for msg in messages %}
+                <div class="d-flex {% if msg.user == request.user %}justify-content-end{% else %}justify-content-start{% endif %} mb-3">
+                    {% if msg.user != request.user %}
+                    {% if msg.user.profile_image %}
+                    <img src="{{ msg.user.profile_image.url }}" class="rounded-circle me-2 flex-shrink-0" style="width:32px;height:32px;object-fit:cover;align-self:flex-end;">
+                    {% else %}
+                    <div class="rounded-circle bg-primary-soft me-2 d-flex align-items-center justify-content-center flex-shrink-0" style="width:32px;height:32px;align-self:flex-end;">
+                        <i class="bi bi-person-fill text-primary-custom" style="font-size:12px;"></i>
+                    </div>
+                    {% endif %}
+                    {% endif %}
+
+                    <div class="message-bubble">
+                        <div class="p-3 {% if msg.user == request.user %}message-mine{% else %}message-other{% endif %}">
+                            {% if msg.text %}<p class="mb-0">{{ msg.text }}</p>{% endif %}
+                            {% if msg.image %}
+                            <img src="{{ msg.image.url }}" class="img-fluid rounded-3 mt-1" style="max-width:250px;" alt="">
+                            {% endif %}
+                        </div>
+                        <div class="d-flex align-items-center gap-2 mt-1 {% if msg.user == request.user %}justify-content-end{% endif %}">
+                            <span class="message-time text-muted">{{ msg.created_at|date:"H:i" }}</span>
+                            {% if msg.user == request.user %}
+                            <div class="dropdown">
+                                <button class="btn btn-sm p-0 text-muted" data-bs-toggle="dropdown" style="background:none;border:none;">
+                                    <i class="bi bi-three-dots" style="font-size:12px;"></i>
+                                </button>
+                                <ul class="dropdown-menu dropdown-menu-end" style="min-width:140px;">
+                                    <li>
+                                        <button class="dropdown-item small" onclick="editMessage({{ msg.id }}, '{{ msg.text|escapejs }}')">
+                                            <i class="bi bi-pencil me-2"></i>Tahrirlash
+                                        </button>
+                                    </li>
+                                    <li>
+                                        <form method="post" action="{% url 'message-delete' msg.id %}">
+                                            {% csrf_token %}
+                                            <button class="dropdown-item small text-danger" type="submit">
+                                                <i class="bi bi-trash me-2"></i>O'chirish
+                                            </button>
+                                        </form>
+                                    </li>
+                                </ul>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+                {% else %}
+                <div class="text-center text-muted my-5">
+                    <i class="bi bi-chat-dots fs-1 mb-2"></i>
+                    <p>Suhbat boshlang!</p>
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Edit form (hidden) -->
+            <div id="editArea" class="d-none px-3 py-2" style="background:#fef9c3;border-left:3px solid #fbbf24;">
+                <small class="text-muted"><i class="bi bi-pencil me-1"></i>Xabarni tahrirlash</small>
+                <button class="btn btn-sm text-muted float-end" onclick="cancelEdit()"><i class="bi bi-x"></i></button>
+            </div>
+
+            <!-- Input -->
+            <div class="chat-input-area">
+                <form method="post" enctype="multipart/form-data" id="msgForm">
+                    {% csrf_token %}
+                    <input type="hidden" name="_edit_id" id="editId">
+                    <div class="d-flex gap-2 align-items-end">
+                        <label class="btn btn-outline-secondary btn-sm p-2" style="border-radius:10px;cursor:pointer;" title="Rasm yuklash">
+                            <i class="bi bi-image"></i>
+                            <input type="file" name="image" accept="image/*" class="d-none" onchange="previewImg(this)">
+                        </label>
+                        <div class="flex-grow-1 position-relative">
+                            <textarea name="text" id="msgText" class="form-control" rows="1" placeholder="Xabar yozing..."
+                                      style="border-radius:12px;resize:none;max-height:120px;" oninput="autoResize(this)"></textarea>
+                            <div id="imgPreview" class="d-none position-absolute bottom-100 start-0 mb-1">
+                                <img id="previewImg" style="height:60px;border-radius:8px;border:2px solid #6366f1;" alt="">
+                                <button type="button" class="btn btn-danger btn-sm position-absolute top-0 end-0" onclick="clearImg()" style="border-radius:50%;width:20px;height:20px;padding:0;font-size:10px;">×</button>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-primary px-4 py-2" style="border-radius:12px;">
+                            <i class="bi bi-send-fill"></i>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block extra_js %}
+<script>
+// Auto scroll to bottom
+const chatBox = document.getElementById('chatBox');
+chatBox.scrollTop = chatBox.scrollHeight;
+
+function autoResize(el) {
+    el.style.height = 'auto';
+    el.style.height = Math.min(el.scrollHeight, 120) + 'px';
+}
+
+function editMessage(id, text) {
+    document.getElementById('editId').value = id;
+    document.getElementById('msgText').value = text;
+    document.getElementById('editArea').classList.remove('d-none');
+    document.getElementById('msgForm').action = `/message-update/${id}/`;
+    document.getElementById('msgText').focus();
+}
+
+function cancelEdit() {
+    document.getElementById('editId').value = '';
+    document.getElementById('msgText').value = '';
+    document.getElementById('editArea').classList.add('d-none');
+    document.getElementById('msgForm').action = '';
+}
+
+function previewImg(input) {
+    if (input.files && input.files[0]) {
+        const reader = new FileReader();
+        reader.onload = e => {
+            document.getElementById('previewImg').src = e.target.result;
+            document.getElementById('imgPreview').classList.remove('d-none');
+        };
+        reader.readAsDataURL(input.files[0]);
+    }
+}
+
+function clearImg() {
+    document.querySelector('input[name="image"]').value = '';
+    document.getElementById('imgPreview').classList.add('d-none');
+}
+
+// Enter to send
+document.getElementById('msgText').addEventListener('keydown', function(e) {
+    if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        document.getElementById('msgForm').submit();
+    }
+});
+</script>
+{% endblock %}
+{% endblock %}

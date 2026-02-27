@@ -1,0 +1,178 @@
+{% extends 'base.html' %}
+{% block title %}{{ products.title }}{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'home' %}">Bosh sahifa</a></li>
+            <li class="breadcrumb-item"><a href="#">{{ products.category.title }}</a></li>
+            <li class="breadcrumb-item active">{{ products.title }}</li>
+        </ol>
+    </nav>
+
+    <div class="row g-5">
+        <!-- Images -->
+        <div class="col-lg-6">
+            <div class="card p-3">
+                {% if products.main_image %}
+                <img src="{{ products.main_image.url }}" id="mainImg" class="img-fluid rounded-3 w-100" style="height:420px;object-fit:cover;" alt="{{ products.title }}">
+                {% else %}
+                <div class="bg-secondary rounded-3 d-flex align-items-center justify-content-center" style="height:420px;">
+                    <i class="bi bi-image text-white" style="font-size:5rem;"></i>
+                </div>
+                {% endif %}
+                <!-- Thumbnails -->
+                {% if products.images.exists %}
+                <div class="d-flex gap-2 mt-3 overflow-auto pb-1">
+                    {% if products.main_image %}
+                    <img src="{{ products.main_image.url }}" onclick="document.getElementById('mainImg').src=this.src"
+                         class="rounded-2 border border-primary" style="width:70px;height:70px;object-fit:cover;cursor:pointer;">
+                    {% endif %}
+                    {% for img in products.images.all %}
+                    <img src="{{ img.image.url }}" onclick="document.getElementById('mainImg').src=this.src"
+                         class="rounded-2 border" style="width:70px;height:70px;object-fit:cover;cursor:pointer;">
+                    {% endfor %}
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Info -->
+        <div class="col-lg-6">
+            <span class="badge-category mb-3 d-inline-block">{{ products.category.title }}</span>
+            <h2 class="fw-800 mb-1">{{ products.title }}</h2>
+            <p class="text-muted mb-3"><i class="bi bi-building me-1"></i>{{ products.brand }}</p>
+
+            <!-- Price -->
+            <div class="card p-4 mb-4" style="background:#f8fafc;">
+                {% if products.percent %}
+                <div class="d-flex align-items-center gap-3">
+                    <span style="font-size:2rem;font-weight:800;color:#6366f1;">{{ products.discount_price|floatformat:0 }} so'm</span>
+                    <div>
+                        <span class="text-muted text-decoration-line-through d-block">{{ products.price|floatformat:0 }} so'm</span>
+                        <span class="badge-discount">-{{ products.percent }}% chegirma</span>
+                    </div>
+                </div>
+                {% else %}
+                <span style="font-size:2rem;font-weight:800;color:#6366f1;">{{ products.price|floatformat:0 }} so'm</span>
+                {% endif %}
+            </div>
+
+            <!-- Stats -->
+            <div class="row g-3 mb-4">
+                <div class="col-6">
+                    <div class="card p-3 text-center">
+                        <div class="fw-700 fs-4 text-primary-custom">{{ count_product }}</div>
+                        <small class="text-muted">Oxirgi hafta sotildi</small>
+                    </div>
+                </div>
+                <div class="col-6">
+                    <div class="card p-3 text-center">
+                        <div class="fw-700 fs-4 text-success">{{ user_count }}</div>
+                        <small class="text-muted">Xaridor</small>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Stock -->
+            <p class="mb-4">
+                {% if products.stock > 0 %}
+                <span class="text-success fw-600"><i class="bi bi-check-circle-fill me-1"></i>Omborda: {{ products.stock }} ta</span>
+                {% else %}
+                <span class="text-danger fw-600"><i class="bi bi-x-circle-fill me-1"></i>Omborda yo'q</span>
+                {% endif %}
+            </p>
+
+            <!-- Buttons -->
+            {% if user.is_authenticated %}
+            <div class="d-flex gap-3">
+                <form method="post" action="{% url 'addcart' products.pk %}" class="flex-grow-1">
+                    {% csrf_token %}
+                    <button class="btn btn-primary w-100 py-3 fw-700" {% if products.stock == 0 %}disabled{% endif %}>
+                        <i class="bi bi-cart-plus me-2"></i>Savatga qo'shish
+                    </button>
+                </form>
+                <form method="post" action="{% url 'addwishlist' products.id %}">
+                    {% csrf_token %}
+                    <button class="btn btn-outline-danger py-3 px-4"><i class="bi bi-heart-fill"></i></button>
+                </form>
+            </div>
+            {% if request.user == products.auth %}
+            <div class="d-flex gap-2 mt-3">
+                <a href="{% url 'product_update' products.pk %}" class="btn btn-outline-primary flex-grow-1"><i class="bi bi-pencil me-1"></i>Tahrirlash</a>
+                <a href="{% url 'product_delete' products.pk %}" class="btn btn-outline-danger" onclick="return confirm('O\'chirishni tasdiqlaysizmi?')"><i class="bi bi-trash"></i></a>
+            </div>
+            {% endif %}
+            {% else %}
+            <a href="{% url 'login' %}" class="btn btn-primary w-100 py-3 fw-700">Xarid qilish uchun kiring</a>
+            {% endif %}
+
+            <!-- Description -->
+            <div class="mt-4">
+                <h6 class="fw-700 mb-2">Tavsif</h6>
+                <p class="text-muted" style="line-height:1.7;">{{ products.desc }}</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- COMMENTS -->
+    <div class="row mt-5">
+        <div class="col-lg-8">
+            <h5 class="section-title mb-4"><i class="bi bi-chat-dots me-2"></i>Izohlar ({{ comment.count }})</h5>
+
+            {% if user.is_authenticated %}
+            <div class="card p-4 mb-4">
+                <h6 class="fw-700 mb-3">Izoh qoldiring</h6>
+                <form method="post">
+                    {% csrf_token %}
+                    <textarea class="form-control mb-3" name="text" rows="3" placeholder="Fikringizni yozing..." style="border-radius:12px;"></textarea>
+                    <button class="btn btn-primary">Yuborish <i class="bi bi-send ms-1"></i></button>
+                </form>
+            </div>
+            {% endif %}
+
+            {% for c in comment %}
+            <div class="card p-4 mb-3">
+                <div class="d-flex align-items-center gap-3 mb-2">
+                    {% if c.user.profile_image %}
+                    <img src="{{ c.user.profile_image.url }}" class="avatar" alt="">
+                    {% else %}
+                    <div class="avatar bg-primary-soft d-flex align-items-center justify-content-center">
+                        <i class="bi bi-person-fill text-primary-custom"></i>
+                    </div>
+                    {% endif %}
+                    <div>
+                        <span class="fw-700">{{ c.user.username }}</span>
+                        <br><small class="text-muted">{{ c.created_at|date:"d.m.Y" }}</small>
+                    </div>
+                </div>
+                <p class="mb-0 text-muted">{{ c.text }}</p>
+            </div>
+            {% empty %}
+            <div class="card p-4 text-center text-muted">
+                <i class="bi bi-chat-square-text fs-2 mb-2"></i>
+                <p class="mb-0">Hozircha izoh yo'q. Birinchi bo'ling!</p>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- Related products -->
+        <div class="col-lg-4">
+            <h6 class="fw-700 mb-3">O'xshash mahsulotlar</h6>
+            {% for p in category %}
+            <div class="card p-3 mb-3 d-flex flex-row gap-3">
+                {% if p.main_image %}
+                <img src="{{ p.main_image.url }}" style="width:70px;height:70px;object-fit:cover;border-radius:10px;" alt="">
+                {% endif %}
+                <div>
+                    <p class="mb-1 fw-600 small">{{ p.title }}</p>
+                    <span class="text-primary-custom fw-700 small">{{ p.discount_price|floatformat:0 }} so'm</span>
+                    <br><a href="{% url 'product_detail' p.pk %}" class="btn btn-sm btn-outline-primary mt-1" style="font-size:11px;">Ko'rish</a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}

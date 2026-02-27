@@ -7,7 +7,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from orders.models import  OrderItem
 from django.db.models import Sum
 from users.models import *
-
+from django.db.models import Q
 
 User=get_user_model()
 
@@ -212,4 +212,11 @@ class MessageDelete(LoginRequiredMixin,View):
 
 
 class ProductSearch(View):
-    pass
+    def get(self,request):
+        search=self.request.GET.get('q')
+        if search:
+            products=Products.objects.filter(Q(title__icontains=search)).distinct()
+        else:
+            messages.success(request,"Mahsulot topilmadi")
+        return render(request,'home.html',{'products':products})
+

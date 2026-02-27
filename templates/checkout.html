@@ -1,0 +1,115 @@
+{% extends 'base.html' %}
+{% block title %}Buyurtma berish{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div class="container">
+        <h2 class="fw-800 mb-1"><i class="bi bi-bag-check me-2"></i>Buyurtma berish</h2>
+        <p class="opacity-75 mb-0">Ma'lumotlaringizni tekshirib, tasdiqlang</p>
+    </div>
+</div>
+
+<div class="container pb-5">
+    <!-- Steps -->
+    <div class="d-flex justify-content-center gap-0 mb-5">
+        <div class="d-flex align-items-center">
+            <div class="rounded-circle d-flex align-items-center justify-content-center fw-700 text-white" style="width:40px;height:40px;background:#6366f1;">1</div>
+            <span class="ms-2 fw-600 d-none d-md-inline">Savat</span>
+        </div>
+        <div style="width:60px;height:2px;background:#6366f1;margin:0 8px;align-self:center;"></div>
+        <div class="d-flex align-items-center">
+            <div class="rounded-circle d-flex align-items-center justify-content-center fw-700 text-white" style="width:40px;height:40px;background:#6366f1;">2</div>
+            <span class="ms-2 fw-600 d-none d-md-inline">Tasdiqlash</span>
+        </div>
+        <div style="width:60px;height:2px;background:#e2e8f0;margin:0 8px;align-self:center;"></div>
+        <div class="d-flex align-items-center">
+            <div class="rounded-circle d-flex align-items-center justify-content-center fw-700" style="width:40px;height:40px;background:#e2e8f0;color:#94a3b8;">3</div>
+            <span class="ms-2 d-none d-md-inline text-muted">Yakunlash</span>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-lg-7">
+            <!-- Delivery info -->
+            <div class="card p-4 mb-4">
+                <h5 class="fw-800 mb-4"><i class="bi bi-person-lines-fill me-2 text-primary-custom"></i>Yetkazib berish ma'lumotlari</h5>
+                <div class="row g-3">
+                    <div class="col-12">
+                        <label class="form-label fw-600">Ism</label>
+                        <input type="text" class="form-control" value="{{ user.get_full_name|default:user.username }}" readonly style="border-radius:10px;background:#f8fafc;">
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label fw-600">Telefon</label>
+                        <input type="text" class="form-control" value="{{ user.phone|default:'Kiritilmagan' }}" readonly style="border-radius:10px;background:#f8fafc;">
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label fw-600">Manzil</label>
+                        <textarea class="form-control" readonly style="border-radius:10px;background:#f8fafc;">{{ user.address|default:'Manzil kiritilmagan' }}</textarea>
+                    </div>
+                </div>
+                <a href="{% url 'update_user' user.id %}" class="btn btn-outline-primary btn-sm mt-3">
+                    <i class="bi bi-pencil me-1"></i>Ma'lumotlarni yangilash
+                </a>
+            </div>
+
+            <!-- Cart items summary -->
+            <div class="card p-4">
+                <h5 class="fw-800 mb-4"><i class="bi bi-cart-check me-2 text-primary-custom"></i>Buyurtma tarkibi</h5>
+                {% for item in cart.items.all %}
+                <div class="d-flex align-items-center gap-3 mb-3 pb-3 {% if not forloop.last %}border-bottom{% endif %}">
+                    {% if item.product.main_image %}
+                    <img src="{{ item.product.main_image.url }}" style="width:60px;height:60px;object-fit:cover;border-radius:10px;">
+                    {% endif %}
+                    <div class="flex-grow-1">
+                        <p class="fw-600 mb-0 small">{{ item.product.title }}</p>
+                        <small class="text-muted">{{ item.product.brand }} • {{ item.quantity }} ta</small>
+                    </div>
+                    <span class="fw-700 text-primary-custom">{{ item.get_totel|floatformat:0 }} so'm</span>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Order summary -->
+        <div class="col-lg-5">
+            <div class="card p-4" style="position:sticky;top:80px;">
+                <h5 class="fw-800 mb-4">To'lov xulosasi</h5>
+                <div class="d-flex justify-content-between mb-3">
+                    <span class="text-muted">Mahsulotlar</span>
+                    <span class="fw-600">{{ total_price|floatformat:0 }} so'm</span>
+                </div>
+                <div class="d-flex justify-content-between mb-3">
+                    <span class="text-muted">Yetkazib berish</span>
+                    <span class="fw-600 text-success">Bepul</span>
+                </div>
+                <hr>
+                <div class="d-flex justify-content-between mb-4">
+                    <span class="fw-800 fs-5">Jami</span>
+                    <span class="fw-800 fs-5 text-primary-custom">{{ total_price|floatformat:0 }} so'm</span>
+                </div>
+
+                <div class="card p-3 mb-4" style="background:#f8fafc;border-radius:12px;">
+                    <div class="d-flex justify-content-between">
+                        <span class="text-muted small">Hisobdagi balans</span>
+                        <span class="fw-700">{{ user.balance|floatformat:0 }} so'm</span>
+                    </div>
+                    <div class="d-flex justify-content-between mt-1">
+                        <span class="text-muted small">Keyin qoladi</span>
+                        <span class="fw-700 {% if user.balance >= total_price %}text-success{% else %}text-danger{% endif %}">
+                            {{ user.balance|add:"-"|add:total_price|floatformat:0 }} so'm
+                        </span>
+                    </div>
+                </div>
+
+                <form method="post">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-primary w-100 py-3 fw-700 mb-2" {% if user.balance < total_price %}disabled{% endif %}>
+                        <i class="bi bi-check-circle me-2"></i>Buyurtmani tasdiqlash
+                    </button>
+                </form>
+                <a href="{% url 'cart_view' %}" class="btn btn-outline-secondary w-100">Savatga qaytish</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

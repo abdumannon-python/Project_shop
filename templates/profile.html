@@ -1,0 +1,103 @@
+{% extends 'base.html' %}
+{% block title %}{{ user.username }} - Profil{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row g-4">
+        <!-- Profile Card -->
+        <div class="col-lg-4">
+            <div class="card p-4 text-center">
+                <div class="position-relative d-inline-block mx-auto mb-3">
+                    {% if user.profile_image %}
+                    <img src="{{ user.profile_image.url }}" class="rounded-circle" style="width:120px;height:120px;object-fit:cover;border:4px solid #6366f1;" alt="">
+                    {% else %}
+                    <div class="rounded-circle bg-primary-soft d-flex align-items-center justify-content-center mx-auto" style="width:120px;height:120px;border:4px solid #6366f1;">
+                        <i class="bi bi-person-fill text-primary-custom" style="font-size:3rem;"></i>
+                    </div>
+                    {% endif %}
+                    <div class="position-absolute bottom-0 end-0">
+                        <span class="badge rounded-circle p-2 {% if user.is_online %}bg-success{% else %}bg-secondary{% endif %}" style="width:18px;height:18px;"></span>
+                    </div>
+                </div>
+                <h4 class="fw-800 mb-1">{{ user.username }}</h4>
+                <p class="text-muted mb-1">{{ user.email }}</p>
+                {% if user.phone %}
+                <p class="text-muted small mb-3"><i class="bi bi-telephone me-1"></i>{{ user.phone }}</p>
+                {% endif %}
+                <span class="badge {% if user.is_online %}bg-success{% else %}bg-secondary{% endif %} px-3 py-2 rounded-pill mb-3">
+                    {% if user.is_online %}Online{% else %}Offline{% endif %}
+                </span>
+                {% if request.user.id == user.id %}
+                <a href="{% url 'update_user' user.id %}" class="btn btn-primary w-100">
+                    <i class="bi bi-pencil me-2"></i>Profilni tahrirlash
+                </a>
+                {% endif %}
+            </div>
+
+            <!-- Stats -->
+            <div class="card p-4 mt-4">
+                <h6 class="fw-800 mb-3">Statistika</h6>
+                <div class="row g-3 text-center">
+                    <div class="col-6">
+                        <div class="p-3 bg-primary-soft rounded-3">
+                            <div class="fw-800 fs-4 text-primary-custom">{{ products.count }}</div>
+                            <small class="text-muted">Mahsulotlar</small>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="p-3" style="background:#fef3c7;border-radius:12px;">
+                            <div class="fw-800 fs-4" style="color:#92400e;">{{ user.balance|floatformat:0 }}</div>
+                            <small class="text-muted">Balans (so'm)</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Products -->
+        <div class="col-lg-8">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h5 class="section-title mb-0">{{ user.username }}ning mahsulotlari</h5>
+                {% if request.user.id == user.id %}
+                <a href="{% url 'product_create' %}" class="btn btn-primary btn-sm">
+                    <i class="bi bi-plus me-1"></i>Yangi qo'shish
+                </a>
+                {% endif %}
+            </div>
+            <div class="row g-3">
+                {% for product in products %}
+                <div class="col-md-6">
+                    <div class="card p-3 h-100">
+                        <div class="d-flex gap-3">
+                            {% if product.main_image %}
+                            <img src="{{ product.main_image.url }}" style="width:80px;height:80px;object-fit:cover;border-radius:12px;" alt="">
+                            {% else %}
+                            <div class="bg-secondary rounded-3 d-flex align-items-center justify-content-center flex-shrink-0" style="width:80px;height:80px;">
+                                <i class="bi bi-image text-white"></i>
+                            </div>
+                            {% endif %}
+                            <div class="flex-grow-1">
+                                <h6 class="fw-700 mb-1 small">{{ product.title }}</h6>
+                                <span class="badge-category mb-2 d-inline-block">{{ product.category.title }}</span>
+                                <div class="fw-700 text-primary-custom small">{{ product.price|floatformat:0 }} so'm</div>
+                                <div class="d-flex gap-2 mt-2">
+                                    <a href="{% url 'product_detail' product.pk %}" class="btn btn-outline-primary btn-sm" style="font-size:11px;">Ko'rish</a>
+                                    {% if request.user.id == user.id %}
+                                    <a href="{% url 'product_update' product.pk %}" class="btn btn-outline-secondary btn-sm" style="font-size:11px;"><i class="bi bi-pencil"></i></a>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="col-12 text-center py-4 text-muted">
+                    <i class="bi bi-box fs-1 mb-2"></i>
+                    <p>Hali mahsulot yo'q</p>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

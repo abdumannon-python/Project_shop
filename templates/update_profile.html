@@ -1,0 +1,79 @@
+{% extends 'base.html' %}
+{% block title %}Profilni tahrirlash{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-6">
+            <div class="d-flex align-items-center gap-3 mb-4">
+                <a href="{% url 'profile' user.id %}" class="btn btn-outline-secondary btn-sm"><i class="bi bi-arrow-left"></i></a>
+                <h4 class="fw-800 mb-0">Profilni tahrirlash</h4>
+            </div>
+            <div class="card p-4">
+                <!-- Current avatar -->
+                <div class="text-center mb-4">
+                    {% if user.profile_image %}
+                    <img src="{{ user.profile_image.url }}" class="rounded-circle mb-2" style="width:100px;height:100px;object-fit:cover;border:3px solid #6366f1;" alt="">
+                    {% else %}
+                    <div class="rounded-circle bg-primary-soft d-flex align-items-center justify-content-center mx-auto mb-2" style="width:100px;height:100px;">
+                        <i class="bi bi-person-fill text-primary-custom" style="font-size:2.5rem;"></i>
+                    </div>
+                    {% endif %}
+                    <p class="text-muted small">Rasmni almashtirish uchun quyida yuklang</p>
+                </div>
+
+                <form method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label class="form-label fw-600">Profil rasmi</label>
+                        <input type="file" name="profile_image" class="form-control" accept="image/*" style="border-radius:10px;">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-600">Telefon raqami</label>
+                        <div class="input-group">
+                            <span class="input-group-text" style="border-radius:10px 0 0 10px;"><i class="bi bi-telephone"></i></span>
+                            <input type="text" name="phone" class="form-control" placeholder="+998 90 123 45 67" value="{{ user.phone|default:'' }}" style="border-radius:0 10px 10px 0;">
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-600">Balans (so'm)</label>
+                        <div class="input-group">
+                            <span class="input-group-text" style="border-radius:10px 0 0 10px;"><i class="bi bi-wallet2"></i></span>
+                            <input type="text" name="balance" class="form-control" value="{{ user.balance|default:'0' }}" style="border-radius:0 10px 10px 0;">
+                        </div>
+                    </div>
+                    <div class="mb-4">
+                        <label class="form-label fw-600">Yangi parol <span class="text-muted small">(o'zgartirmasangiz, bo'sh qoldiring)</span></label>
+                        <div class="input-group">
+                            <span class="input-group-text" style="border-radius:10px 0 0 10px;"><i class="bi bi-lock"></i></span>
+                            <input type="password" name="new_password" id="newPass" class="form-control" placeholder="Yangi parol" style="border-radius:0 10px 10px 0;">
+                            <button class="btn btn-outline-secondary" type="button" onclick="togglePass()" style="border-radius:0 10px 10px 0;">
+                                <i class="bi bi-eye" id="eyeIcon"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100 py-3 fw-700">
+                        <i class="bi bi-check-circle me-2"></i>Saqlash
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block extra_js %}
+<script>
+function togglePass() {
+    const input = document.getElementById('newPass');
+    const icon = document.getElementById('eyeIcon');
+    if (input.type === 'password') {
+        input.type = 'text';
+        icon.className = 'bi bi-eye-slash';
+    } else {
+        input.type = 'password';
+        icon.className = 'bi bi-eye';
+    }
+}
+</script>
+{% endblock %}
+{% endblock %}

@@ -1,0 +1,104 @@
+{% extends 'base.html' %}
+{% block title %}Buyurtma #{{ order.id }}{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="d-flex align-items-center gap-3 mb-4">
+        <a href="{% url 'order_list' %}" class="btn btn-outline-secondary btn-sm"><i class="bi bi-arrow-left"></i></a>
+        <h3 class="fw-800 mb-0">Buyurtma #{{ order.id }}</h3>
+        {% if order.status == 'pending' %}
+        <span class="badge bg-warning text-dark px-3 py-2 rounded-pill">Kutilmoqda</span>
+        {% elif order.status == 'processing' %}
+        <span class="badge bg-info px-3 py-2 rounded-pill">Jarayonda</span>
+        {% elif order.status == 'shipped' %}
+        <span class="badge bg-primary px-3 py-2 rounded-pill">Yo'lda</span>
+        {% elif order.status == 'delivered' %}
+        <span class="badge bg-success px-3 py-2 rounded-pill">Yetkazildi</span>
+        {% elif order.status == 'cancelled' %}
+        <span class="badge bg-danger px-3 py-2 rounded-pill">Bekor qilindi</span>
+        {% endif %}
+    </div>
+
+    <!-- Status Timeline -->
+    <div class="card p-4 mb-4">
+        <div class="d-flex justify-content-between align-items-center">
+            {% for step, label, icon in status_steps %}
+            <div class="text-center flex-grow-1">
+                <div class="rounded-circle mx-auto mb-2 d-flex align-items-center justify-content-center" 
+                     style="width:44px;height:44px;background:{% if order.status == step %}#6366f1{% elif order.status == 'cancelled' %}#fee2e2{% else %}#f1f5f9{% endif %};">
+                    <i class="bi bi-{{ icon }}" style="color:{% if order.status == step %}white{% elif order.status == 'cancelled' %}#ef4444{% else %}#94a3b8{% endif %};"></i>
+                </div>
+                <small style="font-size:11px;color:{% if order.status == step %}#6366f1{% else %}#94a3b8{% endif %};font-weight:{% if order.status == step %}700{% else %}400{% endif %};">{{ label }}</small>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <!-- Items -->
+        <div class="col-lg-8">
+            <div class="card p-4">
+                <h5 class="fw-800 mb-4">Buyurtma tarkibi</h5>
+                {% for item in items %}
+                <div class="d-flex align-items-center gap-3 mb-4 pb-4 {% if not forloop.last %}border-bottom{% endif %}">
+                    {% if item.product_image %}
+                    <img src="{{ item.product_image.url }}" style="width:80px;height:80px;object-fit:cover;border-radius:12px;">
+                    {% else %}
+                    <div class="bg-secondary rounded-3 d-flex align-items-center justify-content-center" style="width:80px;height:80px;">
+                        <i class="bi bi-box text-white fs-3"></i>
+                    </div>
+                    {% endif %}
+                    <div class="flex-grow-1">
+                        <h6 class="fw-700 mb-1">{{ item.product_title }}</h6>
+                        <p class="text-muted small mb-0">Miqdor: {{ item.quantity }} ta</p>
+                        <p class="text-muted small mb-0">Birlik narxi: {{ item.price|floatformat:0 }} so'm</p>
+                    </div>
+                    <span class="fw-800 text-primary-custom">{{ item.get_total|floatformat:0 }} so'm</span>
+                </div>
+                {% endfor %}
+
+                <div class="d-flex justify-content-between pt-2">
+                    <span class="fw-800 fs-5">Jami to'lov</span>
+                    <span class="fw-800 fs-5 text-primary-custom">{{ order.total_price|floatformat:0 }} so'm</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Order info -->
+        <div class="col-lg-4">
+            <div class="card p-4 mb-4">
+                <h6 class="fw-800 mb-3">Yetkazib berish ma'lumotlari</h6>
+                <div class="mb-2">
+                    <small class="text-muted">Ism</small>
+                    <p class="fw-600 mb-0">{{ order.username }}</p>
+                </div>
+                <div class="mb-2">
+                    <small class="text-muted">Telefon</small>
+                    <p class="fw-600 mb-0">{{ order.phone|default:"Ko'rsatilmagan" }}</p>
+                </div>
+                <div class="mb-2">
+                    <small class="text-muted">Manzil</small>
+                    <p class="fw-600 mb-0">{{ order.address|default:"Ko'rsatilmagan" }}</p>
+                </div>
+                <div>
+                    <small class="text-muted">Buyurtma sanasi</small>
+                    <p class="fw-600 mb-0">{{ order.created_at|date:"d.m.Y H:i" }}</p>
+                </div>
+            </div>
+
+            {% if order.status == 'pending' %}
+            <div class="card p-4" style="background:#fef2f2;border-radius:16px;">
+                <h6 class="fw-700 text-danger mb-2"><i class="bi bi-exclamation-triangle me-1"></i>Buyurtmani bekor qilish</h6>
+                <p class="text-muted small mb-3">Faqat "Kutilmoqda" holatidagi buyurtmalarni bekor qilish mumkin.</p>
+                <form method="post" action="{% url 'order_cancel' order.id %}">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger w-100 fw-700" onclick="return confirm('Bekor qilishni tasdiqlaysizmi?')">
+                        <i class="bi bi-x-circle me-1"></i>Bekor qilish
+                    </button>
+                </form>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
