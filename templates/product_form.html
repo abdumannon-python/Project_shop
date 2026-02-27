@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Yangi mahsulot qo'shish</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body class="bg-gray-50 text-gray-800">
+
+    <div class="max-w-4xl mx-auto px-4 py-12">
+        <div class="mb-8 flex items-center justify-between">
+            <div>
+                <h1 class="text-3xl font-extrabold text-gray-900">Yangi mahsulot</h1>
+                <p class="text-gray-500 mt-1">Barcha maydonlarni diqqat bilan to'ldiring.</p>
+            </div>
+            <a href="{% url 'home' %}" class="text-gray-600 hover:text-blue-600 font-medium flex items-center transition">
+                <i class="fa-solid fa-arrow-left mr-2"></i> Dashboardga qaytish
+            </a>
+        </div>
+
+        <form method="POST" enctype="multipart/form-data" class="space-y-8">
+            {% csrf_token %}
+            
+            <div class="bg-white rounded-3xl shadow-sm border border-gray-200 p-8">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    
+                    <div class="md:col-span-2">
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">Mahsulot nomi *</label>
+                        <input type="text" name="title" required placeholder="Masalan: iPhone 15 Pro" 
+                            class="w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition">
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">Kategoriya *</label>
+                        <select name="category" required class="w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-blue-500 outline-none transition bg-white">
+                            <option value="" disabled selected>Kategoriyani tanlang</option>
+                            {% for cat in category %}
+                                <option value="{{ cat.id }}">{{ cat.title }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">Brend</label>
+                        <input type="text" name="brand" placeholder="Masalan: Apple" 
+                            class="w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-blue-500 outline-none transition">
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">Narxi (so'm) *</label>
+                        <input type="number" name="price" required placeholder="0.00" 
+                            class="w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-blue-500 outline-none transition">
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">Chegirma (%)</label>
+                        <input type="number" name="percent" placeholder="0" 
+                            class="w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-blue-500 outline-none transition">
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">Soni (Stock) *</label>
+                        <input type="number" name="stock" required placeholder="1" 
+                            class="w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-blue-500 outline-none transition">
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">Asosiy rasm *</label>
+                        <input type="file" name="main_image" required accept="image/*"
+                            class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
+                    </div>
+
+                    <div class="md:col-span-2">
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">Qo'shimcha rasmlar (bir nechta)</label>
+                        <div class="border-2 border-dashed border-gray-300 rounded-xl p-6 text-center hover:border-blue-400 transition">
+                            <input type="file" name="images" multiple accept="image/*" class="hidden" id="multi-images">
+                            <label for="multi-images" class="cursor-pointer text-blue-600 hover:text-blue-700 font-medium">
+                                <i class="fa-solid fa-cloud-arrow-up text-2xl mb-2 block text-gray-400"></i>
+                                Rasmlarni tanlang yoki bu yerga tashlang
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="md:col-span-2">
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">Mahsulot haqida ma'lumot</label>
+                        <textarea name="desc" rows="4" placeholder="Mahsulot xususiyatlari haqida yozing..." 
+                            class="w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-blue-500 outline-none transition resize-none"></textarea>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex items-center justify-end gap-4">
+                <button type="reset" class="px-8 py-3 rounded-xl border border-gray-300 font-semibold text-gray-600 hover:bg-gray-100 transition">
+                    Tozalash
+                </button>
+                <button type="submit" class="px-10 py-3 rounded-xl bg-blue-600 text-white font-bold shadow-lg shadow-blue-200 hover:bg-blue-700 transition">
+                    Saqlash va yuklash
+                </button>
+            </div>
+        </form>
+    </div>
+
+</body>
+</html>

@@ -34,9 +34,9 @@ class ProductCreate(LoginRequiredMixin,View):
         )
         product.save()
         images=request.FILES.getlist('images')
-        for imgage in images:
-            ProductImages.objects.create(product=product,imgage=imgage)
-        return redirect('dashboard')
+        for image in images:
+            ProductImages.objects.create(product=product, image=image)
+        return redirect('home')
 
 
 
@@ -48,7 +48,7 @@ class ProductUpdate(LoginRequiredMixin,View):
             'product':product,
             'category':category
         }
-        return render(request,'product_form.html',context)
+        return render(request,'product_update.html',context)
 
     def post(self,request,pk):
         product = get_object_or_404(Products, pk=pk, auth=request.user)
