@@ -149,14 +149,3 @@ class Addwish(LoginRequiredMixin ,View):
             Wishlis.objects.create(user=request.user,product=post)
 
         return redirect('home')
-
-
-
-
-
-
-
-
-
-
-

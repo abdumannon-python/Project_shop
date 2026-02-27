@@ -219,7 +219,3 @@ class ConfirmRecovery(View):
             return render(request, 'auth/rec_code.html', {
                 "error": "No`to`g`ri Kod Kiritildi"
             })
-
-class AddProduct(View):
-    def get(self, request):
-        return render
