@@ -90,7 +90,3 @@ class OrderItem(models.Model):
     @property
     def get_total(self):
         return self.price * self.quantity
-
-
-
-

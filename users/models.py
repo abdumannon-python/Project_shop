@@ -4,11 +4,11 @@ from datetime import timedelta
 from django.contrib.auth.models import AbstractUser
 from django.core.cache import cache
 class User(AbstractUser):
-
     phone=models.CharField(max_length=15,null=True,blank=True)
     address=models.TextField(blank=True,null=True)
     email = models.EmailField(unique=True)
     profile_image = models.ImageField(upload_to='profile_image/', null=True, blank=True)
+    balance = models.DecimalField(decimal_places=3, max_digits=10, null=True, blank=True)
     def __str__(self):
         return self.username
 

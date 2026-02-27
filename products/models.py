@@ -41,8 +41,6 @@ class ProductImages(models.Model):
     def __str__(self):
         return self.product.title
 
-class Wishlis(models.Model):
-    user=models.ForeignKey(User,on_delete=models.CASCADE,related_name='wishlis')
+class Wishlist(models.Model):
+    user=models.ForeignKey(User,on_delete=models.CASCADE,related_name='wishlist')
     product=models.ForeignKey(Products,on_delete=models.CASCADE,related_name='product')
-
-

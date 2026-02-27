@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ user.username }} profili</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body class="bg-gray-100">
+
+    <div class="max-w-6xl mx-auto px-4 py-10">
+        
+        <div class="bg-white rounded-3xl shadow-sm overflow-hidden mb-8 border border-gray-200">
+            <div class="h-32 bg-gradient-to-r from-blue-500 to-indigo-600"></div>
+            <div class="px-8 pb-8">
+                <div class="relative flex justify-between items-end -mt-12 mb-6">
+                    <div class="p-1 bg-white rounded-2xl shadow-sm">
+                        <div class="w-32 h-32 bg-gray-200 rounded-xl flex items-center justify-center text-gray-400 text-4xl font-bold uppercase">
+                            {{ user.username|slice:":2" }}
+                        </div>
+                    </div>
+                    {% if request.user.id == user.id %}
+                    <a href="{% url 'update_user' request.user.id %}" class="bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 px-6 py-2 rounded-xl font-medium transition duration-200 shadow-sm">
+                        <i class="fa-solid fa-pen-to-square mr-2"></i>Tahrirlash
+                    </a>
+                    {% endif %}
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div>
+                        <h1 class="text-3xl font-extrabold text-gray-900">{{ user.username }}</h1>
+                        <p class="text-gray-500 mt-1"><i class="fa-solid fa-phone mr-2"></i>{{ user.phone|default:"Raqam kiritilmagan" }}</p>
+                    </div>
+                    <div class="flex flex-col items-center md:items-start justify-center border-l border-r border-gray-100 px-6">
+                        <span class="text-sm text-gray-400 uppercase tracking-wider font-semibold">Balans</span>
+                        <span class="text-2xl font-bold text-green-600">{{ user.balance|default:"0.00" }} so'm</span>
+                    </div>
+                    <div class="flex flex-col items-center md:items-start justify-center">
+                        <span class="text-sm text-gray-400 uppercase tracking-wider font-semibold">Mahsulotlar soni</span>
+                        <span class="text-2xl font-bold text-gray-800">{{ products.count }} ta</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="mb-6 flex items-center justify-between">
+            <h2 class="text-2xl font-bold text-gray-800">Yuklangan mahsulotlar</h2>
+        </div>
+
+        {% if products %}
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            {% for product in products %}
+            <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition duration-300">
+                {% if product.image %}
+                    <img src="{{ product.image.url }}" alt="{{ product.name }}" class="w-full h-48 object-cover">
+                {% else %}
+                    <div class="w-full h-48 bg-gray-100 flex items-center justify-center text-gray-400">
+                        <i class="fa-regular fa-image text-3xl"></i>
+                    </div>
+                {% endif %}
+                <div class="p-5">
+                    <h3 class="font-bold text-gray-800 mb-2 truncate">{{ product.name }}</h3>
+                    <div class="flex justify-between items-center">
+                        <span class="text-blue-600 font-bold">{{ product.price }} so'm</span>
+                        <span class="text-xs text-gray-400">{{ product.created_at|date:"d.m.Y" }}</span>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="bg-white rounded-2xl p-20 text-center border-2 border-dashed border-gray-200">
+            <div class="text-gray-300 mb-4 text-6xl">
+                <i class="fa-solid fa-box-open"></i>
+            </div>
+            <h3 class="text-xl font-medium text-gray-900">Mahsulotlar mavjud emas</h3>
+            <p class="text-gray-500 mt-2">Hali hech qanday mahsulot yuklanmagan.</p>
+        </div>
+        {% endif %}
+    </div>
+
+</body>
+</html>

@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profilni tahrirlash</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body class="bg-slate-50 flex items-center justify-center min-h-screen p-6">
+
+    <div class="bg-white p-8 rounded-3xl shadow-2xl w-full max-w-lg border border-gray-100">
+        <div class="text-center mb-6">
+            <h2 class="text-2xl font-bold text-gray-800">Profil ma'lumotlari</h2>
+            <p class="text-sm text-gray-500">Rasmingiz va asosiy ma'lumotlarni yangilang</p>
+        </div>
+
+        <form method="POST" enctype="multipart/form-data" class="space-y-4">
+            {% csrf_token %}
+
+            <div class="flex flex-col items-center mb-6">
+                <div class="relative group">
+                    <img id="preview" 
+                         src="{% if user.profile_image %}{{ user.profile_image.url }}{% else %}https://ui-avatars.com/api/?name={{ user.username }}&background=random{% endif %}" 
+                         class="w-28 h-28 rounded-full object-cover border-4 border-white shadow-lg group-hover:opacity-75 transition-all">
+                    
+                    <label class="absolute bottom-0 right-0 bg-blue-600 text-white p-2 rounded-full cursor-pointer hover:bg-blue-700 shadow-md">
+                        <i class="fas fa-camera"></i>
+                        <input type="file" name="profile_image" class="hidden" accept="image/*" onchange="previewImage(event)">
+                    </label>
+                </div>
+                <p class="text-xs text-gray-400 mt-2">Profil rasmini o'zgartirish</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-xs font-bold text-gray-600 uppercase mb-1 ml-1">Foydalanuvchi</label>
+                    <input type="text" name="username" value="{{ user.username }}" 
+                           class="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition-all">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-gray-600 uppercase mb-1 ml-1">Telefon</label>
+                    <input type="text" name="phone" value="{{ user.phone|default:'' }}" 
+                           class="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition-all">
+                </div>
+            </div>
+
+            <div>
+                <label class="block text-xs font-bold text-gray-600 uppercase mb-1 ml-1">Balans (Hozirgi: {{ user.balance }})</label>
+                <div class="relative">
+                    <input type="text" name="balance" value="{{ user.balance }}" 
+                           class="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition-all">
+                    <span class="absolute left-3 top-3 text-gray-400">
+                        <i class="fas fa-coins text-sm"></i>
+                    </span>
+                </div>
+            </div>
+
+            <div>
+                <label class="block text-xs font-bold text-gray-600 uppercase mb-1 ml-1">Yangi parol</label>
+                <div class="relative">
+                    <input type="password" name="new_password" 
+                           placeholder="O'zgartirish uchun yozing..."
+                           class="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition-all">
+                    <span class="absolute left-3 top-3 text-gray-400">
+                        <i class="fas fa-key text-sm"></i>
+                    </span>
+                </div>
+            </div>
+
+            <div class="pt-6 flex items-center justify-between">
+                <a href="{% url 'profile' user.id %}" class="text-gray-500 hover:text-gray-700 text-sm font-medium">
+                    Bekor qilish
+                </a>
+                <button type="submit" 
+                        class="px-8 py-3 bg-blue-600 text-white font-bold rounded-xl hover:bg-blue-700 shadow-lg shadow-blue-200 transition-all active:scale-95">
+                    Saqlash <i class="fas fa-check ml-2"></i>
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        function previewImage(event) {
+            const reader = new FileReader();
+            reader.onload = function(){
+                const output = document.getElementById('preview');
+                output.src = reader.result;
+            };
+            reader.readAsDataURL(event.target.files[0]);
+        }
+    </script>
+</body>
+</html>
