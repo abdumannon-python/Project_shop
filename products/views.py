@@ -5,7 +5,7 @@ from django.contrib.auth import get_user_model
 from .models import *
 from django.views import View
 from django.contrib.auth.mixins import LoginRequiredMixin
-from orders.models import OrderItem, Order
+from orders.models import OrderItem, Order, Cart
 from django.db.models import Sum
 from users.models import *
 from django.db.models import Q
@@ -121,12 +121,16 @@ class ProductDetails(View):
         order = OrderItem.objects.filter(product_id=pk,order__created_at__gte=last_week).exclude(order__status='cancelled')
         user_count=order.values('order').distinct().count()
         count_product=order.aggregate(total=Sum('quantity'))['total'] or 0
+        is_wished = False
+        if request.user.is_authenticated:
+            is_wished=Wishlist.objects.filter(user=request.user,product=products).exists()
         context={
             'products':products,
             'comment':comment,
             'user_count':user_count,
             'count_product':count_product,
-            'category':category
+            'category':category,
+            'is_wished':is_wished
         }
 
         return render(request,'product_detail.html',context)
@@ -151,18 +155,36 @@ class ProductDetails(View):
 class ProductView(View):
     def get(self,request):
         products=Products.objects.filter().order_by('category')
-        category=Category.objects.all()
         category_id = request.GET.get('category')
         if category_id:
-            products=products.filter(category_id=category_id)
-        search = self.request.GET.get('q')
+            products = products.filter(category_id=category_id)
+        search = request.GET.get('q')
         if search:
-            products = Products.objects.filter(Q(title__icontains=search)).distinct()
+            products = products.filter(Q(title__icontains=search)).distinct()
+            if not products.exists():
+                messages.warning(request, "Qidiruv bo'yicha mahsulot topilmadi")
+
+        chat_count = 0
+        cart_count = 0
+        if request.user.is_authenticated:
+            chat_count = Chat.objects.filter(participants=request.user).count()
+            cart = Cart.objects.filter(user=request.user, is_ordered=False).first()
+            if cart:
+                cart_count = cart.items.count()
+
+        category = Category.objects.all()
+        if request.user.is_authenticated:
+            wishlist_ids = Wishlist.objects.filter(user=request.user).values_list('product_id', flat=True)
         else:
-            messages.success(request, "Mahsulot topilmadi")
+            wishlist_ids = []
+
         return render(request,'index.html',{
             'products':products,
-            'category':category
+            'category':category,
+            'chat_count': chat_count,
+            'cart_count': cart_count,
+            'search_query': search,
+            'wishlist_ids':wishlist_ids
             })
 
 class WishesView(View):
@@ -193,9 +215,13 @@ class Addwish(LoginRequiredMixin ,View):
 class ChatView(LoginRequiredMixin,View):
     def get(self,request):
         chats=Chat.objects.filter(participants=request.user).prefetch_related('participants').order_by('-created_at')
-
+        if chats:
+            chat_count=chats.count()
+        else:
+            chat_count=0
         context={
-            'chats':chats
+            'chats':chats,
+            'chat_count':chat_count
         }
 
         return render(request,'chat_list.html',context)

@@ -93,11 +93,15 @@
                         <i class="bi bi-cart-plus me-2"></i>Savatga qo'shish
                     </button>
                 </form>
-                <form method="post" action="{% url 'addwishlist' products.id %}">
+               <form method="post" action="{% url 'addwishlist' products.pk %}">
                     {% csrf_token %}
-                    <button class="btn {% if is_wished %}btn-danger{% else %}btn-outline-danger{% endif %} py-3 px-4">
-                        <i class="bi bi-heart-fill"></i>
-                        </button>
+                    <button type="submit" class="btn p-0 border-0 bg-transparent">
+                        {% if is_wished %}
+                            <i class="bi bi-heart-fill text-danger fs-3"></i>
+                        {% else %}
+                            <i class="bi bi-heart text-dark fs-3"></i>
+                        {% endif %}
+                    </button>
                 </form>
             </div>
             {% if request.user == products.auth %}

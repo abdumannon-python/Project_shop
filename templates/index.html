@@ -55,10 +55,16 @@
                     {% if product.percent %}
                     <span class="badge-discount position-absolute top-0 end-0 m-2">-{{ product.percent }}%</span>
                     {% endif %}
-                    <button class="btn btn-sm position-absolute top-0 start-0 m-2 p-1" style="background:white;border-radius:8px;border:none;" 
-                            onclick="event.preventDefault(); fetch('{% url 'addwishlist' product.id %}', {method:'POST', headers:{'X-CSRFToken':'{{ csrf_token }}'}})">
-                        <i class="bi bi-heart text-danger"></i>
-                    </button>
+                    <form action="{% url 'addwishlist' product.id %}" method="POST" style="display:inline;">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-sm position-absolute top-0 start-0 m-2 p-1"
+                                style="background:white; border-radius:8px; border:none;">
+
+                            {% if product.id in wishlist_ids %}
+                                <i class="bi bi-heart-fill text-danger"></i> {% else %}
+                                <i class="bi bi-heart text-danger"></i> {% endif %}
+                        </button>
+                    </form>
                 </div>
                 <div class="card-body d-flex flex-column p-3">
                     <span class="badge-category mb-2">{{ product.category.title }}</span>
