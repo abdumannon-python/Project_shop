@@ -23,7 +23,7 @@ class DashboardView(LoginRequiredMixin, View):
         foydalanuvchi=seller_orders.values('order__user').distinct().count()
         total_orders_count = seller_orders.count()
         product_count=product.distinct().count()
-        daromad = seller_orders.exclude(order__status='pending').aggregate(
+        daromad = seller_orders.exclude(order__status='cancelled').aggregate(
             total=Sum('price')
         )['total'] or 0
 

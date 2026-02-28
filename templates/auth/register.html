@@ -1,187 +1,120 @@
+<!-- ======= REGISTER ======= -->
+<!-- auth/register.html -->
 <!DOCTYPE html>
 <html lang="uz">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ro'yxatdan o'tish | My Store</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
+    <title>Ro'yxatdan o'tish - ShopUz</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
     <style>
-        body {
-            font-family: 'Plus Jakarta Sans', sans-serif;
-            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-        }
-
-        .register-card {
-            background: white;
-            border-radius: 24px;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
-            overflow: hidden;
-            max-width: 500px;
-            width: 100%;
-            border: none;
-        }
-
-        .card-header-custom {
-            background: #4a90e2;
-            padding: 30px;
-            text-align: center;
-            color: white;
-        }
-
-        .form-control {
-            border-radius: 12px;
-            padding: 12px 15px;
-            border: 1px solid #e0e0e0;
-            background-color: #fcfcfc;
-        }
-
-        .form-control:focus {
-            box-shadow: 0 0 0 4px rgba(74, 144, 226, 0.1);
-            border-color: #4a90e2;
-        }
-
-        .profile-upload {
-            position: relative;
-            width: 100px;
-            height: 100px;
-            margin: -50px auto 20px;
-        }
-
-        .profile-preview {
-            width: 100px;
-            height: 100px;
-            border-radius: 50%;
-            object-fit: cover;
-            border: 4px solid white;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-            background: #eee;
-        }
-
-        .upload-btn {
-            position: absolute;
-            bottom: 0;
-            right: 0;
-            background: #4a90e2;
-            color: white;
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            border: 2px solid white;
-        }
-
-        .btn-register {
-            background: #4a90e2;
-            border: none;
-            border-radius: 12px;
-            padding: 14px;
-            font-weight: 600;
-            transition: 0.3s;
-        }
-
-        .btn-register:hover {
-            background: #357abd;
-            transform: translateY(-2px);
-        }
-
-        .error-alert {
-            border-radius: 12px;
-            font-size: 0.9rem;
-            animation: shake 0.5s ease;
-        }
-
-        @keyframes shake {
-            0%, 100% {transform: translateX(0);}
-            25% {transform: translateX(-5px);}
-            75% {transform: translateX(5px);}
-        }
+        body { background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%); min-height: 100vh; display: flex; align-items: center; }
+        .auth-card { border-radius: 24px; border: none; box-shadow: 0 24px 60px rgba(0,0,0,0.15); }
+        .form-control { border-radius: 12px; border: 2px solid #e2e8f0; padding: 12px 16px; transition: border-color 0.2s; }
+        .form-control:focus { border-color: #6366f1; box-shadow: none; }
+        .btn-primary { background: #6366f1; border: none; border-radius: 12px; font-weight: 700; padding: 14px; }
+        .btn-primary:hover { background: #4f46e5; }
+        .brand { font-weight: 800; font-size: 1.6rem; color: #6366f1; }
+        .brand span { color: #f59e0b; }
+        .input-group-text { border-radius: 12px 0 0 12px; border: 2px solid #e2e8f0; border-right: none; background: #f8fafc; }
+        .input-group .form-control { border-radius: 0 12px 12px 0; }
+        .avatar-preview { width: 80px; height: 80px; border-radius: 50%; object-fit: cover; border: 3px solid #6366f1; display: none; }
     </style>
 </head>
 <body>
-
-<div class="register-card">
-    <div class="card-header-custom">
-        <h3 class="fw-bold mb-1">Hisob yaratish</h3>
-        <p class="mb-0 opacity-75">Bizga qo'shiling va xaridni boshlang</p>
-    </div>
-
-    <div class="card-body p-4 p-md-5">
-        <form method="POST" enctype="multipart/form-data">
-            {% csrf_token %}
-            
-            <div class="profile-upload">
-                <img src="https://cdn-icons-png.flaticon.com/512/149/149071.png" id="preview" class="profile-preview">
-                <label for="profile_image" class="upload-btn">
-                    <i class="fas fa-camera"></i>
-                </label>
-                <input type="file" name="profile_image" id="profile_image" hidden accept="image/*" required>
-            </div>
-
-            {% if error %}
-            <div class="alert alert-danger error-alert d-flex align-items-center mb-4" role="alert">
-                <i class="fas fa-exclamation-circle me-2"></i>
-                <div>{{ error }}</div>
-            </div>
-            {% endif %}
-
-            <div class="mb-3">
-                <label class="form-label small fw-bold">Username</label>
-                <div class="input-group">
-                    <span class="input-group-text bg-white border-end-0 rounded-start-12"><i class="far fa-user text-muted"></i></span>
-                    <input type="text" name="username" class="form-control border-start-0 ps-0" placeholder="user123" required>
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-6 col-lg-5 py-5">
+            <div class="auth-card card p-5">
+                <div class="text-center mb-4">
+                    <div class="brand mb-2">Shop<span>Uz</span></div>
+                    <h4 class="fw-800">Ro'yxatdan o'tish</h4>
+                    <p class="text-muted small">Hisob yarating va xarid qilishni boshlang</p>
                 </div>
-            </div>
 
-            <div class="mb-3">
-                <label class="form-label small fw-bold">Email manzilingiz</label>
-                <div class="input-group">
-                    <span class="input-group-text bg-white border-end-0"><i class="far fa-envelope text-muted"></i></span>
-                    <input type="email" name="email" class="form-control border-start-0 ps-0" placeholder="example@gmail.com" required>
+                {% if error %}
+                <div class="alert alert-danger" style="border-radius:12px;background:#fef2f2;border:none;color:#991b1b;">
+                    <i class="bi bi-exclamation-circle me-2"></i>{{ error }}
                 </div>
-            </div>
+                {% endif %}
 
-            <div class="row">
-                <div class="col-md-6 mb-3">
-                    <label class="form-label small fw-bold">Parol</label>
-                    <input type="password" name="password" class="form-control" placeholder="••••••••" required>
-                </div>
-                <div class="col-md-6 mb-3">
-                    <label class="form-label small fw-bold">Tasdiqlash</label>
-                    <input type="password" name="confirm_password" class="form-control" placeholder="••••••••" required>
-                </div>
-            </div>
+                <form method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <!-- Avatar upload -->
+                    <div class="text-center mb-4">
+                        <div class="position-relative d-inline-block">
+                            <img id="avatarPreview" class="avatar-preview" src="" alt="">
+                            <label class="btn btn-outline-primary btn-sm" style="border-radius:12px;cursor:pointer;" id="uploadLabel">
+                                <i class="bi bi-camera me-1"></i>Rasm tanlash
+                                <input type="file" name="profile_image" accept="image/*" class="d-none" onchange="previewAvatar(this)">
+                            </label>
+                        </div>
+                    </div>
 
-            <button type="submit" class="btn btn-primary btn-register w-100 mt-3 text-white">
-                Ro'yxatdan o'tish <i class="fas fa-arrow-right ms-2"></i>
-            </button>
-
-            <div class="text-center mt-4">
-                <p class="small text-muted">Profilingiz bormi? <a href="{% url 'login' %}" class="text-primary fw-bold text-decoration-none">Kirish</a></p>
+                    <div class="mb-3">
+                        <label class="form-label fw-600">Username <span class="text-danger">*</span></label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-person"></i></span>
+                            <input type="text" name="username" class="form-control" placeholder="username" required>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-600">Email <span class="text-danger">*</span></label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-envelope"></i></span>
+                            <input type="email" name="email" class="form-control" placeholder="email@example.com" required>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-600">Parol <span class="text-danger">*</span></label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-lock"></i></span>
+                            <input type="password" name="password" id="pass1" class="form-control" placeholder="Kamida 5 ta belgi" required>
+                            <button class="btn btn-outline-secondary" type="button" onclick="togglePass('pass1','eye1')" style="border-radius:0 12px 12px 0;border:2px solid #e2e8f0;border-left:none;">
+                                <i class="bi bi-eye" id="eye1"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="mb-4">
+                        <label class="form-label fw-600">Parolni tasdiqlang <span class="text-danger">*</span></label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-lock-fill"></i></span>
+                            <input type="password" name="confirm_password" id="pass2" class="form-control" placeholder="Parolni qayta kiriting" required>
+                            <button class="btn btn-outline-secondary" type="button" onclick="togglePass('pass2','eye2')" style="border-radius:0 12px 12px 0;border:2px solid #e2e8f0;border-left:none;">
+                                <i class="bi bi-eye" id="eye2"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100 py-3">
+                        Ro'yxatdan o'tish <i class="bi bi-arrow-right ms-2"></i>
+                    </button>
+                </form>
+                <p class="text-center text-muted mt-4 mb-0">Hisobingiz bormi? <a href="{% url 'login' %}" class="fw-700 text-decoration-none" style="color:#6366f1;">Kirish</a></p>
             </div>
-        </form>
+        </div>
     </div>
 </div>
-
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-    // Rasmni tanlaganda darhol preview qilish uchun
-    document.getElementById('profile_image').onchange = function (evt) {
-        const [file] = this.files
-        if (file) {
-            document.getElementById('preview').src = URL.createObjectURL(file)
-        }
+function previewAvatar(input) {
+    if (input.files && input.files[0]) {
+        const reader = new FileReader();
+        reader.onload = e => {
+            const img = document.getElementById('avatarPreview');
+            img.src = e.target.result;
+            img.style.display = 'block';
+            document.getElementById('uploadLabel').innerHTML = '<i class="bi bi-camera me-1"></i>O\'zgartirish<input type="file" name="profile_image" accept="image/*" class="d-none" onchange="previewAvatar(this)">';
+        };
+        reader.readAsDataURL(input.files[0]);
     }
+}
+function togglePass(id, iconId) {
+    const input = document.getElementById(id);
+    const icon = document.getElementById(iconId);
+    if (input.type === 'password') { input.type = 'text'; icon.className = 'bi bi-eye-slash'; }
+    else { input.type = 'password'; icon.className = 'bi bi-eye'; }
+}
 </script>
-
 </body>
 </html>

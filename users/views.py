@@ -23,7 +23,7 @@ class Register(View):
         profile_image = request.FILES.get('profile_image')
         password = request.POST.get('password')
         confirm_password = request.POST.get('confirm_password')
-
+        print(username,'===================')
         if password != confirm_password:
             return render(request, 'auth/register.html', {""
                 "error": "Parollar mos Emas"
