@@ -222,3 +222,7 @@ class OrderStatusView(LoginRequiredMixin,View):
             messages.error(request, "Noto'g'ri holat tanlandi!")
 
         return redirect("order_detail")
+
+
+
+    
